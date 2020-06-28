@@ -1,12 +1,15 @@
 import matplotlib as mpl
 import heapq
+import numpy as np
+from queue import PriorityQueue
+
+# import matplotlib.pyplot as plt
 
 mpl.use('PS')
-import matplotlib.pyplot as plt
-import numpy as np
 
-#this file imports user selected grid
-#num is the user's number choice
+
+# this file imports user selected grid
+# num is the user's number choice
 def create_arr(num):
     temp = './arrs/backTrackerMazes/' + str(num) + '.txt'
     grid = np.loadtxt(fname=temp, dtype=bool)
@@ -27,30 +30,80 @@ def manhattan_distance(xy1, xy2):
 
 # priority queue for the openlist
 
-class priority_queue:
-    def __init__(self):
-        self.elements = []
-
-    def empty(self):
-        return len(self.elements) == 0
-
-    def put(self, item, priority):
-        heapq.heappush(self.elements, (priority, item))
-
-    def get(self):
-        return heapq.heappop(self.elements)[1]
-
-# po
-# class Grid (arr):
-#     def __init__(self, width, height):
-#         super.__init__(width, height)
-#         self.weights = {}
-#     def cost(self, from_node, to_node):
-#         return self.weights.get(to_node, 1)
+# class priority_queue:
+#     def __init__(self):
+#         self.elements = []
+#
+#     def empty(self):
+#         return len(self.elements) == 0
+#
+#     def push(self, item, priority):
+#         heapq.heappush(self.elements, (priority, item))
+#
+#     def pop(self):
+#         return heapq.heappop(self.elements)[1]
 
 
-# note heapq should be sorted based on f which is g + h or step cost + heuristic (manhattan distance)
-# test stuff
+class state:
+    def __init__(self, parent, pos):
+        self.children = []
+        self.parent = parent
+        self.pos = pos
+        self.g = 0
+        self.h = 0
+        self.f = 0
+
+    # override
+    def __eq__(self, other):
+        return self.pos == other.pos
+
+
+def astar(grid, start=(0, 0), end=(100, 100)):
+    # initialize start and end states respectively
+    start_state = state(None, start)
+    start_state.g = 0
+    start_state.f = 0
+    end_state = state(None, end)
+    end_state.g = 0
+    end_state.f = 0
+
+    # initialize start open and closed lists respectively
+    open_list = PriorityQueue()
+    closed_list = []
+
+    open_list.put(start_state)
+
+
+def find_children(s):
+    # directions for finding position of adjacent tiles to current state
+    left = (-1, 0)
+    right = (1, 0)
+    up = (0, 1)
+    down = (0, -1)
+
+    # find the children by by looking at adjacent squares, and add them to list for the state
+    for i in range(4):
+        if i == 0:
+            temp_pos = (s.pos[0] + left[0], s.pos[1] + left[1])
+            if 0 <= temp_pos[0] < 101 and 101 > temp_pos[1] >= 0:
+                s.children.append(state(s, temp_pos))
+                print(temp_pos)
+        elif i == 1:
+            temp_pos = (s.pos[0] + right[0], s.pos[1] + right[1])
+            if 0 <= temp_pos[0] < 101 and 101 > temp_pos[1] >= 0:
+                s.children.append(state(s, temp_pos))
+                print(temp_pos)
+        elif i == 2:
+            temp_pos = (s.pos[0] + up[0], s.pos[1] + up[1])
+            if 0 <= temp_pos[0] < 101 and 101 > temp_pos[1] >= 0:
+                s.children.append(state(s, temp_pos))
+                print(temp_pos)
+        elif i == 3:
+            temp_pos = (s.pos[0] + down[0], s.pos[1] + down[1])
+            if 0 <= temp_pos[0] < 101 and 101 > temp_pos[1] >= 0:
+                s.children.append(state(s, temp_pos))
+                print(temp_pos)
+    print(len(s.children))
 
 
 # xy1 = (2, 2)
@@ -65,3 +118,5 @@ class priority_queue:
 #
 # print(grid)
 # # print(grid)
+s = state(None, (1, 1))
+find_children(s)
