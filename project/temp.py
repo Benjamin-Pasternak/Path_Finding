@@ -1,6 +1,7 @@
 import matplotlib as mpl
 import numpy as np
 from queue import PriorityQueue
+import heapq
 
 
 # this file imports user selected grid
@@ -9,7 +10,21 @@ def create_arr(num):
     temp = './arrs/backTrackerMazes/' + str(num) + '.txt'
     grid = np.loadtxt(fname=temp, dtype=bool)
     return grid
-    #print(grid)
+    # print(grid)
+
+
+class priority_queue:
+    def __init__(self):
+        self.elements = []
+
+    def empty(self):
+        return len(self.elements) == 0
+
+    def put(self, item, priority):
+        heapq.heappush(self.elements, (priority, item))
+
+    def get(self):
+        return heapq.heappop(self.elements)[1]
 
 
 class state:
@@ -27,38 +42,58 @@ class state:
         return self.pos == other.pos
 
 
+# this function computes the manhattan distance given 2 tuples (x,y)
+# ex: xy1 = (2, 2), xy2 = (4, 4) yields 4
+def manhattan_distance(xy1, xy2):
+    return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
+
+
+# does as title suggests, makes code prettier imo
+def f_val_calc(h, g):
+    return h + g
+
+
 class maze:
     # constructor
     def __init__(self, grid):
-        self.start = (0, 0)
-        self.end = (100, 100)
+        self.start = state(None, (0, 0))
+        self.goal = state(None, (100, 100))
         self.grid = grid
 
+    # main
+    def driver(self):
+        counter = 0
+        start = self.start
+        goal = self.goal
+        # line 18
+        while start.pos != goal.pos:
+            counter = counter + 1
+            start.search = counter
+            goal.search = counter
 
-    def astar(self, grid, start=(0, 0), end=(100, 100)):
-        # initialize start and end states respectively
-        start_state = state(None, start)
-        start_state.g = 0
-        start_state.f = 0
-        end_state = state(None, end)
-        end_state.g = float('inf')
-        end_state.f = 0
+            open_set = PriorityQueue()
+            # like a hash set
+            closed_set = set()
+            # like a hashset
+            blocked = set()
 
-        # initialize start open and closed lists respectively
-        open_list = PriorityQueue()
-        closed_list = []
+            # calc values needed for the search! line 25
+            start.h = manhattan_distance(start.pos, goal.pos)
+            start.f = f_val_calc(start.h, start.g)
+            open_set.put((start.f, start))
 
-        # add first state gets added into the priority queue
-        open_list.put(start_state)
-        closed_list.append(start_state)
+            temp1 = open_set.get()
+            open_set.put((temp1[0], temp1[1]))
 
-        while open_list.qsize()>0:
-            expand_state = open_list.get()
-            counter = 0
-            #for counter, item in enumerate
+            while goal.g > temp1[0]:
+                # first open_set.get() = tuple (priority: f, item: state)
+                explore = open_set.get()[1]
+                closed_set.append(explore)
 
-    # need to make sure its walkable terrain
-    def find_children(self, s, grid):
+                # need to make sure its walkable terrain
+
+    # for finding path from immediate node, includes information about blockages, which the other find_children does not
+    def find_children_with_blockage(self, s, grid):
         # directions for finding position of adjacent tiles to current state
         left = (-1, 0)
         right = (1, 0)
@@ -66,7 +101,7 @@ class maze:
         down = (0, -1)
 
         # find the children by by looking at adjacent squares, and add them to list for the state
-        #check also for if squares are walkable
+        # check also for if squares are walkable
         for i in range(4):
             if i == 0:
                 temp_pos = (s.pos[0] + left[0], s.pos[1] + left[1])
@@ -95,26 +130,10 @@ class maze:
         print(len(s.children))
         return s
 
+    # computePath line 1
+    # while goal.g > open_set.elements[1].g:
+    #     print('hi')
 
-        # this function computes the manhattan distance given 2 tuples (x,y)
-        # ex: xy1 = (2, 2), xy2 = (4, 4) yields 4
-    def manhattan_distance(self, xy1, xy2):
-        return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
 
-# xy1 = (2, 2)
-# xy2 = (4, 4)
-# print(manhattan_distance(xy1, xy2))
-# print(float('inf'))
-# col = 5
-# row = 5
-# # open set = heapq
-# # closed set = visited
-# #grid = np.ones((row, col), dtype=bool)
-#
-# print(grid)
-# # print(grid)
-s = state(None, (1, 1))
-k = maze(create_arr(50))
-#print (k.grid)
-
-k.find_children(s, k.grid)
+temp = maze(create_arr(50))
+temp.driver()
