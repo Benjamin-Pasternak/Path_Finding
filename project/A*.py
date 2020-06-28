@@ -9,7 +9,7 @@ def create_arr(num):
     temp = './arrs/backTrackerMazes/' + str(num) + '.txt'
     grid = np.loadtxt(fname=temp, dtype=bool)
     return grid
-    #print(grid)
+    # print(grid)
 
 
 class state:
@@ -34,7 +34,6 @@ class maze:
         self.end = (100, 100)
         self.grid = grid
 
-
     def astar(self, grid, start=(0, 0), end=(100, 100)):
         # initialize start and end states respectively
         start_state = state(None, start)
@@ -52,10 +51,10 @@ class maze:
         open_list.put(start_state)
         closed_list.append(start_state)
 
-        while open_list.qsize()>0:
+        while open_list.qsize() > 0:
             expand_state = open_list.get()
             counter = 0
-            #for counter, item in enumerate
+            # for counter, item in enumerate
 
     # need to make sure its walkable terrain
     def find_children(self, s, grid):
@@ -66,7 +65,7 @@ class maze:
         down = (0, -1)
 
         # find the children by by looking at adjacent squares, and add them to list for the state
-        #check also for if squares are walkable
+        # check also for if squares are walkable
         for i in range(4):
             if i == 0:
                 temp_pos = (s.pos[0] + left[0], s.pos[1] + left[1])
@@ -95,11 +94,12 @@ class maze:
         print(len(s.children))
         return s
 
-
         # this function computes the manhattan distance given 2 tuples (x,y)
         # ex: xy1 = (2, 2), xy2 = (4, 4) yields 4
+
     def manhattan_distance(self, xy1, xy2):
         return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
+
 
 # xy1 = (2, 2)
 # xy2 = (4, 4)
@@ -113,8 +113,8 @@ class maze:
 #
 # print(grid)
 # # print(grid)
-s = state(None, (1, 1))
+r = state(None, (1, 1))
 k = maze(create_arr(50))
-#print (k.grid)
+# print (k.grid)
 
-k.find_children(s, k.grid)
+k.find_children(r, k.grid)

@@ -88,7 +88,7 @@ class maze:
             while goal.g > temp1[0]:
                 # first open_set.get() = tuple (priority: f, item: state)
                 explore = open_set.get()[1]
-                closed_set.append(explore)
+                closed_set.add(explore)
 
                 # need to make sure its walkable terrain
 
