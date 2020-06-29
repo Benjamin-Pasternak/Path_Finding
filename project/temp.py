@@ -92,6 +92,7 @@ class maze:
 
                 # need to make sure its walkable terrain
 
+
     # for finding path from immediate node, includes information about blockages, which the other find_children does not
     def find_children_with_blockage(self, s, grid):
         # directions for finding position of adjacent tiles to current state
