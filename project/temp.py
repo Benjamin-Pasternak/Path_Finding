@@ -13,20 +13,6 @@ def create_arr(num):
     # print(grid)
 
 
-class priority_queue:
-    def __init__(self):
-        self.elements = []
-
-    def empty(self):
-        return len(self.elements) == 0
-
-    def put(self, item, priority):
-        heapq.heappush(self.elements, (priority, item))
-
-    def get(self):
-        return heapq.heappop(self.elements)[1]
-
-
 class state:
     def __init__(self, parent, pos):
         self.children = []
@@ -91,7 +77,6 @@ class maze:
                 closed_set.add(explore)
 
                 # need to make sure its walkable terrain
-
 
     # for finding path from immediate node, includes information about blockages, which the other find_children does not
     def find_children_with_blockage(self, s, grid):
