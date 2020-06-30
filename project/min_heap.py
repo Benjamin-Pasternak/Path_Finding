@@ -44,6 +44,8 @@ class min_heap:
                 return i * 2 + 1
 
     # remove minimum item from list: returns the "popped" minimum element
+    # input: void
+    # output: state: minimum element
     def pop(self):
         retval = self.heap_list[1]
         self.heap_list[1] = self.heap_list[self.current_size]
@@ -53,27 +55,36 @@ class min_heap:
         return retval
 
     # returns but does not remove smallest element in heap
+    # input: void
+    # output: state with highest priority
     def peek(self):
         return self.heap_list[1]
 
-    def buildHeap(self, alist):
-        i = len(alist) // 2
-        self.current_size = len(alist)
-        self.heap_list = [0] + alist[:]
+    # rebuilds heap with updated element priority
+    # input: list = heap without the 0 at front
+    # output: void
+    def build_heap(self, list):
+        i = len(list) // 2
+        self.current_size = len(list)
+        self.heap_list = [0] + list[:]
         while i > 0:
             self.sift_down(i)
             i = i - 1
+
+    # input: state to be updated. output: void. function resets state in the array
     def reset_priority(self, k):
+        # removes the 0 at the beginning of the list so that it can be heapified
         self.heap_list.pop(0)
+        # linear search through heap for item to reset priority
         for i, x in enumerate(self.heap_list):
-            print(self.heap_list)
+            # equals
             if x[0] == k[0] and x[1] == k[1]:
                 temp0 = x[0] + 1
                 self.heap_list[i] = (temp0, x[1])
                 break
-        self.buildHeap(self.heap_list)
-        print(self.heap_list)
-
+        # build the heap
+        self.build_heap(self.heap_list)
+        # print(self.heap_list)
 
 # p = min_heap()
 # p.push((1, "happy"))
