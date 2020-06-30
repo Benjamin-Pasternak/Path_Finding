@@ -56,15 +56,44 @@ class min_heap:
     def peek(self):
         return self.heap_list[1]
 
+    def buildHeap(self, alist):
+        i = len(alist) // 2
+        self.current_size = len(alist)
+        self.heap_list = [0] + alist[:]
+        while i > 0:
+            self.sift_down(i)
+            i = i - 1
+    def reset_priority(self, k):
+        self.heap_list.pop(0)
+        for i, x in enumerate(self.heap_list):
+            print(self.heap_list)
+            if x[0] == k[0] and x[1] == k[1]:
+                temp0 = x[0] + 1
+                self.heap_list[i] = (temp0, x[1])
+                break
+        self.buildHeap(self.heap_list)
+        print(self.heap_list)
+
+
+# p = min_heap()
+# p.push((1, "happy"))
+# p.push((2, "happy"))
+# p.push((3, "happy"))
+# p.push((9, "happy"))
+# p.push((7, "happy"))
+# p.push((20, "happy"))
+# p.push((4, "happy"))
+# p.push((5, "happy"))
+# #print(p.heap_list)
+# p.reset_priority(p.heap_list[3])
+# print(p.heap_list)
+# print(p.current_size)
 # k = min_heap()
-# k.push((1, "happy"))
-# k.push((2, "happy"))
-# k.push((3, "happy"))
-# k.push((9, "happy"))
-# k.push((7, "happy"))
-# k.push((20, "happy"))
-# k.push((4, "happy"))
-# k.push((5, "happy"))
+# k.heap_list = [(1, "happy"), (2, "happy"), (3, "happy"), (9, "happy"), (7, "happy"), (20, "happy"), (4, "happy"), (5, "happy")]
+# k.buildHeap(k.heap_list)
+# print(k.heap_list)
+# print(k.current_size)
+
 # print(k.heap_list)
 # k.pop()
 # print(k.heap_list)
