@@ -1,11 +1,15 @@
 import matplotlib as mpl
 import numpy as np
 from queue import PriorityQueue
-import heapq
+# from min_heap import *
+import sys
 
 
 # this file imports user selected grid
 # num is the user's number choice
+from Path_Finding.project.min_heap import min_heap
+
+
 def create_arr(num):
     temp = './arrs/backTrackerMazes/' + str(num) + '.txt'
     grid = np.loadtxt(fname=temp, dtype=bool)
@@ -46,7 +50,7 @@ class state:
         print(len(s.children))
         return s
 
-    def find_children_no_blockage(self, s, grid):
+    def find_children_no_blockage(self, s, grid, blocked):
         # directions for finding position of adjacent tiles to current state
         neighbors = [(-1, 0), (1, 0), (0, 1), (0, -1)]
 
@@ -59,8 +63,6 @@ class state:
 
         print(len(s.children))
         return s
-
-
 
 
 # this function computes the manhattan distance given 2 tuples (x,y)
@@ -81,6 +83,7 @@ class maze:
         self.goal = state(None, (100, 100))
         self.grid = grid
         self.blocked = set()
+        self.path = [self.start]
 
     # main
     def driver(self):
@@ -94,47 +97,56 @@ class maze:
             goal.search = counter
             goal.g = float('inf')
 
-            #line 24
-            open_set = PriorityQueue()
+            # line 24
+            open_set = min_heap()
             # like a hash set
             closed_set = set()
 
             # calc values needed for the search! line 25
             start.h = manhattan_distance(start.pos, goal.pos)
             start.f = f_val_calc(start.h, start.g)
-            open_set.put((start.f, start))
+            open_set.push((start.f, start))
 
-            temp1 = open_set.get()
-            open_set.put((temp1[0], temp1[1]))
-
-            #beginning of A*
-            #flag determines which child gathering function we are using
-            # with blockage is for immediatly visible squares
+            # beginning of A*
+            # flag determines which child gathering function we are using
+            # with blockage is for immediately visible squares
             # no blockage is for after the iteration in A*
+            # plan is our optomistic path towards goal.
+            plan = self.path
             flag = True
-            while goal.g > temp1[0]:
+            while goal.g > open_set.peek()[0]:
                 # first open_set.get() = tuple (priority: f, item: state)
-                explore = open_set.get()[1]
+                explore = open_set.pop()[1]
                 closed_set.add(explore)
                 if flag:
-                    temp = explore.find_children_with_blockage(explore, self.grid)
-                    flag = flag+1
+                    explore = explore.find_children_with_blockage(explore, self.grid)
+                    flag = False
                 else:
-                    explore = explore.find_children_no_blockage(explore, self.grid)
+                    explore = explore.find_children_no_blockage(explore, self.grid, self.blocked)
 
-                #what if explore.children = empty???
+                # what if explore.children = empty???
                 # need to figure out tie break
                 for child in explore.children:
                     if child.search < counter:
                         child.g = float('inf')
                         child.search = counter
-                        #not sure if its actually +1 i'm guessing it is since in c(s,a) should be 1
-                        #this is line 9
+                        # not sure if its actually +1 i'm guessing it is since in c(s,a) should be 1
+                        # this is line 9
                     if child.g > explore.g + 1:
                         child.g = explore.g + 1
                         child.parent = explore
-                        #on line 12 but need to do stuff with the heap first
-                        if child in open_set:
+                        # on line 12 but need to do stuff with the heap first
+                        if child in open_set.heap_list:
+                            open_set.reset_priority(child)
+
+            # since heap always has 0 as first element, empty heap will be 1 long
+            if open_set.current_size == 1:
+                sys.exit('CANNOT REACH TARGET...')
+
+            # now to move the agent
+            
+
+
 
 
 
@@ -145,9 +157,9 @@ class maze:
 
 
 temp = maze(create_arr(50))
-#temp.driver()
+# temp.driver()
 p = set()
-p.add((0,1))
+p.add((0, 1))
 k = state(None, (0, 0))
 l = k.find_children_with_blockage(k, temp.grid, p)
 print(l[1])
@@ -155,8 +167,5 @@ k.pos = (0, 1)
 l = k.find_children_with_blockage(k, temp.grid, p)
 print(l[1])
 
-
-
-
-#temp.find_children_with_blockage(temp.start, temp.grid, p)
-#temp.find_children_no_blockage(temp.start, temp.grid, p)
+# temp.find_children_with_blockage(temp.start, temp.grid, p)
+# temp.find_children_no_blockage(temp.start, temp.grid, p)

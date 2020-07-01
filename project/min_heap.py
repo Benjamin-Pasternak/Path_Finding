@@ -78,8 +78,8 @@ class min_heap:
         # linear search through heap for item to reset priority
         for i, x in enumerate(self.heap_list):
             # equals
-            if x[0] == k[0] and x[1] == k[1]:
-                temp0 = x[0] + 1
+            if x[0]-1 == k[0] and x[1] == k[1]:
+                temp0 = x[0]
                 self.heap_list[i] = (temp0, x[1])
                 break
         # build the heap
