@@ -1,15 +1,14 @@
+import sys
+import os
 import matplotlib as mpl
 import numpy as np
-from queue import PriorityQueue
-# from min_heap import *
-import sys
+
+from min_heap import *
+
 
 
 # this file imports user selected grid
 # num is the user's number choice
-from Path_Finding.project.min_heap import min_heap
-
-
 def create_arr(num):
     temp = './arrs/backTrackerMazes/' + str(num) + '.txt'
     grid = np.loadtxt(fname=temp, dtype=bool)
@@ -64,6 +63,14 @@ class state:
         print(len(s.children))
         return s
 
+    def find_path(self, s):
+        path = []
+        tmp = s
+        while tmp.parent is not None:
+            path.append(tmp.pos)
+        return path
+
+
 
 # this function computes the manhattan distance given 2 tuples (x,y)
 # ex: xy1 = (2, 2), xy2 = (4, 4) yields 4
@@ -80,10 +87,11 @@ class maze:
     # constructor
     def __init__(self, grid):
         self.start = state(None, (0, 0))
+        self.agent = self.start
         self.goal = state(None, (100, 100))
         self.grid = grid
         self.blocked = set()
-        self.path = [self.start]
+        self.path = []
 
     # main
     def driver(self):
@@ -111,9 +119,9 @@ class maze:
             # flag determines which child gathering function we are using
             # with blockage is for immediately visible squares
             # no blockage is for after the iteration in A*
-            # plan is our optomistic path towards goal.
-            plan = self.path
+
             flag = True
+            # when does this stop? I think it will stop if you cant find anything to expand??? but how???
             while goal.g > open_set.peek()[0]:
                 # first open_set.get() = tuple (priority: f, item: state)
                 explore = open_set.pop()[1]
@@ -127,15 +135,19 @@ class maze:
                 # what if explore.children = empty???
                 # need to figure out tie break
                 for child in explore.children:
+                    # this makes sure that you only set the g of child once. since search will be less then
+                    # counter on the first iteration
                     if child.search < counter:
                         child.g = float('inf')
                         child.search = counter
                         # not sure if its actually +1 i'm guessing it is since in c(s,a) should be 1
                         # this is line 9
+                        # if child.g = inf then you execute
                     if child.g > explore.g + 1:
                         child.g = explore.g + 1
                         child.parent = explore
                         # on line 12 but need to do stuff with the heap first
+                        # if child has already been explored by some other parent, then you need to reset its f value
                         if child in open_set.heap_list:
                             open_set.reset_priority(child)
 
@@ -143,29 +155,44 @@ class maze:
             if open_set.current_size == 1:
                 sys.exit('CANNOT REACH TARGET...')
 
+
+            # do we reset everything after this!!! YES WE DO!
+            # this should be valid
+            optimistic_path = self.goal.find_path(goal)
+            optimistic_path.reverse()
+
+            # moving agent along the path
+            # for p in optimistic_path:
+            #     # basically if point on grid is blocked or true its no good
+            #     if not (p in self.blocked or self.grid[p[0]][p[1]]):
+            #         self.path.append(p)
+            #         self.start.parent = self.start
+
+
+
+
+
+
+
+
             # now to move the agent
-            
-
-
-
-
-
-
-
 
 
 
 
 temp = maze(create_arr(50))
-# temp.driver()
-p = set()
-p.add((0, 1))
-k = state(None, (0, 0))
-l = k.find_children_with_blockage(k, temp.grid, p)
-print(l[1])
-k.pos = (0, 1)
-l = k.find_children_with_blockage(k, temp.grid, p)
-print(l[1])
+temp.driver()
+# p = set()
+# p.add((0, 1))
+# k = state(None, (0, 0))
+# l = k.find_children_with_blockage(k, temp.grid, p)
+# print(l[1])
+# k.pos = (0, 1)
+# l = k.find_children_with_blockage(k, temp.grid, p)
+# print(l[1])
+
+
+
 
 # temp.find_children_with_blockage(temp.start, temp.grid, p)
 # temp.find_children_no_blockage(temp.start, temp.grid, p)
