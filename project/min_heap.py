@@ -86,6 +86,9 @@ class min_heap:
         self.build_heap(self.heap_list)
         # print(self.heap_list)
 
+# organize minheap also on g
+# basically just fix sift up and sift down
+
 # p = min_heap()
 # p.push((1, "happy"))
 # p.push((2, "happy"))
@@ -110,3 +113,4 @@ class min_heap:
 # print(k.heap_list)
 # print(k.peek())
 # print(k.heap_list)
+ # free  after 7 :

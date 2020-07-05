@@ -2,10 +2,11 @@ import sys
 import os
 import matplotlib as mpl
 import numpy as np
-
 from min_heap import *
 
-
+# to do list
+# 1. fix sift up and sift down to be able to prioritize based on high or low g
+# 2. finish the program
 
 # this file imports user selected grid
 # num is the user's number choice
@@ -162,11 +163,11 @@ class maze:
             optimistic_path.reverse()
 
             # moving agent along the path
-            # for p in optimistic_path:
-            #     # basically if point on grid is blocked or true its no good
-            #     if not (p in self.blocked or self.grid[p[0]][p[1]]):
-            #         self.path.append(p)
-            #         self.start.parent = self.start
+            for p in optimistic_path:
+                # basically if point on grid is blocked or true its no good
+                if not (p in self.blocked or self.grid[p[0]][p[1]]):
+                    self.path.append(p)
+                    self.start.parent = self.start
 
 
 
