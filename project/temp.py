@@ -32,6 +32,8 @@ class state:
     # override
     # def __eq__(self, other):
     #     return self.pos == other.pos
+    def update_f(self):
+        self.f = self.g + self.h
 
     # for finding path from immediate node, includes information about blockages, which the other find_children does not
     # can shorten substantially by putting all left right .. into array and then iterating through that in the for loop
@@ -158,16 +160,11 @@ class maze:
                 count = 0
                 for child in explore.children:
                     count = count + 1
-                    # this makes sure that you only set the g of child once. since search will be less then
-                    # counter on the first iteration
                     if child.search < counter:
                         child.g = 1000
                         child.search = counter
-                        # not sure if its actually +1 i'm guessing it is since in c(s,a) should be 1
-                        # this is line 9
-                        # if child.g = inf then you execute
                     if child.g > explore.g + 1:
-                        print(True)
+                        #print(True)
                        #print('woof \n \n')
                         child.g = explore.g + 1
                         child.parent = explore
@@ -177,13 +174,16 @@ class maze:
                         # on line 12 but need to do stuff with the heap first
                         # if child has already been explored by some other parent, then you need to reset its f value
                         # time.sleep(5)
-                        if child.g-1 in open_set.heap_list:
+                        if count == 4:
+                            temp = open_set.generate_temp()
+                        if child in temp:
                             open_set.reset_priority(child)
                         open_set.push((child.f, child))
-                        ### 
-                    open_set.printer()
-                    if count == 3:
-                        sys.exit()
+                        ### HEREERERERERERER
+                    #open_set.printer()
+                    #print(open_set.heap_list)
+                    # if count == 4:
+                    #     sys.exit()
 
             # since heap always has 0 as first element, empty heap will be 1 long
             if open_set.current_size == 1:

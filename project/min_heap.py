@@ -97,21 +97,6 @@ class min_heap:
             self.sift_down(i)
             i = i - 1
 
-    # # input: state to be updated. output: void. function resets state in the array
-    # def reset_priority(self, k):
-    #     # removes the 0 at the beginning of the list so that it can be heapified
-    #     self.heap_list.pop(0)
-    #     # linear search through heap for item to reset priority
-    #     for i, x in enumerate(self.heap_list):
-    #         # equals
-    #         if x[0] - 1 == k[0] and x[1] == k[1]:
-    #             temp0 = x[0]
-    #             self.heap_list[i] = (temp0, x[1])
-    #             break
-    #     # build the heap
-    #     self.build_heap(self.heap_list)
-    #     # print(self.heap_list)
-
     # input: state to be updated. output: void. function resets state in the array
     def reset_priority(self, k):
         # removes the 0 at the beginning of the list so that it can be heapified
@@ -120,16 +105,71 @@ class min_heap:
         for i, x in enumerate(self.heap_list):
             # equals
             if x[0] - 1 == k[0] and x[1] == k[1]:
-                k = (k[0] + 1, k[1])
-                self.heap_list.remove(k)
+                temp0 = x[0]
+                self.heap_list[i] = (temp0, x[1])
                 break
         # build the heap
         self.build_heap(self.heap_list)
         # print(self.heap_list)
 
+    # # input: state to be updated. output: void. function resets state in the array
+    # def reset_priority(self, k):
+    #     # removes the 0 at the beginning of the list so that it can be heapified
+    #     self.heap_list.pop(0)
+    #     # linear search through heap for item to reset priority
+    #     for i, x in enumerate(self.heap_list):
+    #         # equals
+    #         if x[0] - 1 == k[0] and x[1] == k[1]:
+    #             k = (k[0] + 1, k[1])
+    #             self.heap_list.remove(k)
+    #             break
+    #     # build the heap
+    #     self.build_heap(self.heap_list)
+    #     # print(self.heap_list)
+
+    def remove_element(self, k):
+        temp = self.heap_list
+        for i, x in enumerate(temp):
+            # equals
+            print(x[0])
+            sys.exit()
+            if x[0] - 1 == k[0] and x[1] == k[1]:
+                k = (k[0] + 1, k[1])
+                temp.remove(k)
+                break
+        self.heap_list = [0]
+        for x in temp:
+            self.heap_list.push((x[0], x[1]))
+        print(self.heap_list)
+
+
+
     def printer(self):
-        for x in self.heap_list:
-            print(x[0] + ' ' + x[1].pos)
+        temp = self.heap_list[1:self.current_size-1]
+        print(temp)
+        print(True)
+        sys.exit()
+        # for x in enumerate(self.heap_list):
+        #     tmp = x[0]
+        #     print(tmp)
+        #     print(x[1])
+    def generate_temp(self):
+        temp = []
+        count = 0
+        for i in self.heap_list:
+            if count == 0:
+                count += 1
+                continue
+            else:
+                temp.append(i[1])
+        return temp
+        # print (temp)
+        # sys.exit()
+
+            #temp.append(x[1])
+        #return temp
+
+
 
 # organize minheap also on g
 # basically just fix sift up and sift down
@@ -143,8 +183,8 @@ class min_heap:
 # p.push((20, "happy"))
 # p.push((4, "happy"))
 # p.push((5, "happy"))
-# #print(p.heap_list)
-# p.reset_priority(p.heap_list[3])
+# print(p.heap_list)
+# p.remove_element(p.heap_list[3])
 # print(p.heap_list)
 # print(p.current_size)
 # k = min_heap()
