@@ -77,7 +77,7 @@ class min_heap:
         # print('6: heaplist after sift down: ')
         # print(self.heap_list)
         # print(' \n')
-        #sys.exit()
+        # sys.exit()
         return retval
 
     # returns but does not remove smallest element in heap
@@ -120,12 +120,16 @@ class min_heap:
         for i, x in enumerate(self.heap_list):
             # equals
             if x[0] - 1 == k[0] and x[1] == k[1]:
-                k = (k[0]+1, k[1])
+                k = (k[0] + 1, k[1])
                 self.heap_list.remove(k)
                 break
         # build the heap
         self.build_heap(self.heap_list)
         # print(self.heap_list)
+
+    def printer(self):
+        for x in self.heap_list:
+            print(x[0] + ' ' + x[1].pos)
 
 # organize minheap also on g
 # basically just fix sift up and sift down

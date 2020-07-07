@@ -180,7 +180,8 @@ class maze:
                         if child.g-1 in open_set.heap_list:
                             open_set.reset_priority(child)
                         open_set.push((child.f, child))
-                    print(open_set.heap_list)
+                        ### 
+                    open_set.printer()
                     if count == 3:
                         sys.exit()
 
