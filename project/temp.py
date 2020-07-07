@@ -3,6 +3,8 @@ import os
 import matplotlib as mpl
 import numpy as np
 from min_heap import *
+import time
+
 
 # to do list
 # 1. fix sift up and sift down to be able to prioritize based on high or low g
@@ -28,8 +30,8 @@ class state:
         self.search = 0
 
     # override
-    def __eq__(self, other):
-        return self.pos == other.pos
+    # def __eq__(self, other):
+    #     return self.pos == other.pos
 
     # for finding path from immediate node, includes information about blockages, which the other find_children does not
     # can shorten substantially by putting all left right .. into array and then iterating through that in the for loop
@@ -37,31 +39,36 @@ class state:
     def find_children_with_blockage(self, s, grid):
         # directions for finding position of adjacent tiles to current state
         neighbors = [(-1, 0), (1, 0), (0, 1), (0, -1)]
-
         for i in range(4):
             temp_pos = (s.pos[0] + neighbors[i][0], s.pos[1] + neighbors[i][1])
-            # check if new pos is within range and if new spot is walkable
-            if 0 <= temp_pos[0] < 101 and 101 > temp_pos[1] >= 0 and not grid[temp_pos[0]][temp_pos[1]]:
-                s.children.append(state(s, temp_pos))
-            elif 0 <= temp_pos[0] < 101 and 101 > temp_pos[1] >= 0 and grid[temp_pos[0]][temp_pos[1]]:
-                grid.blocked.add(temp_pos)
-                print(temp_pos)
 
-        print(len(s.children))
+            # check if new pos is within range and if new spot is walkable
+            # if 0 <= temp_pos[0] < 101 and 101 > temp_pos[1] >= 0 and not grid[temp_pos[0]][temp_pos[1]]:
+            if 0 <= temp_pos[0] <= 4 and 4 >= temp_pos[1] >= 0 and grid.grid[temp_pos[0]][temp_pos[1]] is not True:
+                s.children.append(state(s, temp_pos))
+            # elif 0 <= temp_pos[0] < 101 and 101 > temp_pos[1] >= 0 and grid.grid[temp_pos[0]][temp_pos[1]]:
+            elif 0 <= temp_pos[0] <= 4 and 4 >= temp_pos[1] >= 0 and grid.grid[temp_pos[0]][temp_pos[1]] is True:
+                grid.blocked.append(temp_pos)
+                #print(temp_pos)
+        #print(grid.blocked)
+        # print(len(s.children))
+        # print(s.children[0].pos)
+        #sys.exit()
         return s
 
-    def find_children_no_blockage(self, s, grid, blocked):
+    def find_children_no_blockage(self, s, grid):
         # directions for finding position of adjacent tiles to current state
         neighbors = [(-1, 0), (1, 0), (0, 1), (0, -1)]
 
         for i in range(4):
             temp_pos = (s.pos[0] + neighbors[i][0], s.pos[1] + neighbors[i][1])
             # check if new pos is within range and if new spot is walkable
-            if 0 <= temp_pos[0] < 101 and 101 > temp_pos[1] >= 0 and temp_pos not in grid.blocked:
+            # if 0 <= temp_pos[0] < 101 and 101 > temp_pos[1] >= 0 and temp_pos not in grid.blocked:
+            if 0 <= temp_pos[0] <= 4 and 4 >= temp_pos[1] >= 0 and temp_pos not in grid.blocked:
                 s.children.append(state(s, temp_pos))
-                print(temp_pos)
+                # print(temp_pos)
 
-        print(len(s.children))
+        # print(len(s.children))
         return s
 
     def find_path(self, s):
@@ -70,7 +77,6 @@ class state:
         while tmp.parent is not None:
             path.append(tmp.pos)
         return path
-
 
 
 # this function computes the manhattan distance given 2 tuples (x,y)
@@ -87,11 +93,12 @@ def f_val_calc(h, g):
 class maze:
     # constructor
     def __init__(self, grid):
-        self.start = state(None, (0, 0))
-        self.agent = self.start
-        self.goal = state(None, (100, 100))
+        # self.start = state(None, (0, 0))
+        # self.goal = state(None, (100, 100))
+        self.start = state(None, (4, 2))
+        self.goal = state(None, (4, 4))
         self.grid = grid
-        self.blocked = set()
+        self.blocked = []
         self.path = []
 
     # main
@@ -104,12 +111,12 @@ class maze:
             counter = counter + 1
             start.search = counter
             goal.search = counter
-            goal.g = float('inf')
+            goal.g = 1000
 
             # line 24
             open_set = min_heap()
             # like a hash set
-            closed_set = set()
+            closed_set = []
 
             # calc values needed for the search! line 25
             start.h = manhattan_distance(start.pos, goal.pos)
@@ -123,39 +130,63 @@ class maze:
 
             flag = True
             # when does this stop? I think it will stop if you cant find anything to expand??? but how???
-            while goal.g > open_set.peek()[0]:
+            # print(self.start.g)
+            # print(self.start.h)
+            # print(open_set.heap_list)
+            # print(open_set.peek())
+            # sys.exit()
+            temp_value = open_set.peek()
+            # print(open_set.heap_list)
+            while goal.g > temp_value:  # open_set.peek():
                 # first open_set.get() = tuple (priority: f, item: state)
-                explore = open_set.pop()[1]
-                closed_set.add(explore)
+                # print(open_set.heap_list)
+                #print('ITERATION 1')
+                #print(open_set.heap_list)
+                explore = open_set.pop()
+                explore = explore[1]
+                closed_set.append(explore)
                 if flag:
-                    explore = explore.find_children_with_blockage(explore, self.grid)
+                    explore = explore.find_children_with_blockage(explore, self)
                     flag = False
                 else:
-                    explore = explore.find_children_no_blockage(explore, self.grid, self.blocked)
+                    explore = explore.find_children_no_blockage(explore, self)  # , self.blocked)
+
+                #print(explore.children)
 
                 # what if explore.children = empty???
                 # need to figure out tie break
+                count = 0
                 for child in explore.children:
+                    count = count + 1
                     # this makes sure that you only set the g of child once. since search will be less then
                     # counter on the first iteration
                     if child.search < counter:
-                        child.g = float('inf')
+                        child.g = 1000
                         child.search = counter
                         # not sure if its actually +1 i'm guessing it is since in c(s,a) should be 1
                         # this is line 9
                         # if child.g = inf then you execute
                     if child.g > explore.g + 1:
+                        print(True)
+                       #print('woof \n \n')
                         child.g = explore.g + 1
                         child.parent = explore
+                        # new 12:37 pm july 7 2020
+                        child.h = manhattan_distance(child.pos, goal.pos)
+                        child.f = child.h + child.g
                         # on line 12 but need to do stuff with the heap first
                         # if child has already been explored by some other parent, then you need to reset its f value
-                        if child in open_set.heap_list:
+                        # time.sleep(5)
+                        if child.g-1 in open_set.heap_list:
                             open_set.reset_priority(child)
+                        open_set.push((child.f, child))
+                    print(open_set.heap_list)
+                    if count == 3:
+                        sys.exit()
 
             # since heap always has 0 as first element, empty heap will be 1 long
             if open_set.current_size == 1:
                 sys.exit('CANNOT REACH TARGET...')
-
 
             # do we reset everything after this!!! YES WE DO!
             # this should be valid
@@ -167,22 +198,33 @@ class maze:
                 # basically if point on grid is blocked or true its no good
                 if not (p in self.blocked or self.grid[p[0]][p[1]]):
                     self.path.append(p)
-                    self.start.parent = self.start
+                    self.start = state(self.start, p)
+
+    def check_if_valid_path(self):
+        for i in self.path:
+            if self.grid[i[0]][i[1]] == True:
+                print('bad_Path')
+        print('good path')
+
+        # now to move the agent
 
 
 
 
 
+grid = [[False, False, False, False, False],
+        [False, False, True, False, False],
+        [False, False, True, True, False],
+        [False, False, True, True, False],
+        [False, False, False, True, False]]
+# print(grid[4][1])
+# sys.exit()
+temp_grid = maze(grid)
+temp_grid.driver()
+temp_grid.check_if_valid_path()
 
-
-
-            # now to move the agent
-
-
-
-
-temp = maze(create_arr(50))
-temp.driver()
+# temp = maze(create_arr(50))
+# temp.driver()
 # p = set()
 # p.add((0, 1))
 # k = state(None, (0, 0))
@@ -191,8 +233,6 @@ temp.driver()
 # k.pos = (0, 1)
 # l = k.find_children_with_blockage(k, temp.grid, p)
 # print(l[1])
-
-
 
 
 # temp.find_children_with_blockage(temp.start, temp.grid, p)

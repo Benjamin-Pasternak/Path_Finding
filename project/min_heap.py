@@ -1,3 +1,7 @@
+# remove import later
+import sys
+
+
 class min_heap:
     # constructor
     def __init__(self):
@@ -47,18 +51,40 @@ class min_heap:
     # input: void
     # output: state: minimum element
     def pop(self):
+        # print('1: original heaplist')
+        # print(self.heap_list )
+        # print(' \n')
         retval = self.heap_list[1]
+        # print('2: heaplist[1] or retval: ')
+        # print(retval )
+        # print(' \n')
         self.heap_list[1] = self.heap_list[self.current_size]
+        # print('3a: setting heaplist[1] to heaplist[current size] maybe error')
+        # print(self.heap_list[1])
+        # print(' \n')
+        # print('3b: heaplist current: ')
+        # print(self.heap_list)
+        # print(' \n')
         self.current_size = self.current_size - 1
+        # print('4: current size: ')
+        # print(self.current_size )
+        # print(' \n')
         self.heap_list.pop()
+        # print('5: heaplist after pop: ' )
+        # print(self.heap_list)
+        # print(' \n')
         self.sift_down(1)
+        # print('6: heaplist after sift down: ')
+        # print(self.heap_list)
+        # print(' \n')
+        #sys.exit()
         return retval
 
     # returns but does not remove smallest element in heap
     # input: void
     # output: state with highest priority
     def peek(self):
-        return self.heap_list[1]
+        return self.heap_list[1][0]
 
     # rebuilds heap with updated element priority
     # input: list = heap without the 0 at front
@@ -71,6 +97,21 @@ class min_heap:
             self.sift_down(i)
             i = i - 1
 
+    # # input: state to be updated. output: void. function resets state in the array
+    # def reset_priority(self, k):
+    #     # removes the 0 at the beginning of the list so that it can be heapified
+    #     self.heap_list.pop(0)
+    #     # linear search through heap for item to reset priority
+    #     for i, x in enumerate(self.heap_list):
+    #         # equals
+    #         if x[0] - 1 == k[0] and x[1] == k[1]:
+    #             temp0 = x[0]
+    #             self.heap_list[i] = (temp0, x[1])
+    #             break
+    #     # build the heap
+    #     self.build_heap(self.heap_list)
+    #     # print(self.heap_list)
+
     # input: state to be updated. output: void. function resets state in the array
     def reset_priority(self, k):
         # removes the 0 at the beginning of the list so that it can be heapified
@@ -78,9 +119,9 @@ class min_heap:
         # linear search through heap for item to reset priority
         for i, x in enumerate(self.heap_list):
             # equals
-            if x[0]-1 == k[0] and x[1] == k[1]:
-                temp0 = x[0]
-                self.heap_list[i] = (temp0, x[1])
+            if x[0] - 1 == k[0] and x[1] == k[1]:
+                k = (k[0]+1, k[1])
+                self.heap_list.remove(k)
                 break
         # build the heap
         self.build_heap(self.heap_list)
@@ -113,4 +154,4 @@ class min_heap:
 # print(k.heap_list)
 # print(k.peek())
 # print(k.heap_list)
- # free  after 7 :
+# free  after 7 :
