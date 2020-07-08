@@ -12,11 +12,11 @@ import time
 
 # this file imports user selected grid
 # num is the user's number choice
-def create_arr(num):
-    temp = './arrs/backTrackerMazes/' + str(num) + '.txt'
-    grid = np.loadtxt(fname=temp, dtype=bool)
-    return grid
-    # print(grid)
+# def create_arr(num):
+#     temp = './arrs/backTrackerMazes/' + str(num) + '.txt'
+#     grid = np.loadtxt(fname=temp, dtype=bool)
+#     return grid
+#     # print(grid)
 
 
 class state:
@@ -29,12 +29,9 @@ class state:
         self.f = 0
         self.search = 0
 
-    #override
-    def __eq__(self, other):
-        return self.pos == other.pos
-
-
-
+    # #override
+    # def __eq__(self, other):
+    #     return self.pos[0] == other.pos[0] and self.pos[1] == other.pos[1]
 
     def update_f(self):
         self.f = self.g + self.h
@@ -42,15 +39,17 @@ class state:
     # for finding path from immediate node, includes information about blockages, which the other find_children does not
     # can shorten substantially by putting all left right .. into array and then iterating through that in the for loop
     # that would get rid of the giant if block
-    def find_children_with_blockage(self, s, grid):
+    def find_children_with_blockage(self, s, grid, closed_list):
         # directions for finding position of adjacent tiles to current state
         neighbors = [(-1, 0), (1, 0), (0, 1), (0, -1)]
         for i in range(4):
             temp_pos = (s.pos[0] + neighbors[i][0], s.pos[1] + neighbors[i][1])
-
+            # print(any(x.pos == temp_pos for x in closed_list))
+            # sys.exit()
             # check if new pos is within range and if new spot is walkable
             # if 0 <= temp_pos[0] < 101 and 101 > temp_pos[1] >= 0 and not grid[temp_pos[0]][temp_pos[1]]:
-            if 0 <= temp_pos[0] <= 4 and 4 >= temp_pos[1] >= 0 and grid.grid[temp_pos[0]][temp_pos[1]] is not True:
+            if 0 <= temp_pos[0] <= 4 and 4 >= temp_pos[1] >= 0 and grid.grid[temp_pos[0]][temp_pos[1]] is not True \
+                    and any(x.pos==temp_pos for x in closed_list) == False:
                 s.children.append(state(s, temp_pos))
             # elif 0 <= temp_pos[0] < 101 and 101 > temp_pos[1] >= 0 and grid.grid[temp_pos[0]][temp_pos[1]]:
             elif 0 <= temp_pos[0] <= 4 and 4 >= temp_pos[1] >= 0 and grid.grid[temp_pos[0]][temp_pos[1]] is True:
@@ -62,7 +61,7 @@ class state:
         #sys.exit()
         return s
 
-    def find_children_no_blockage(self, s, grid):
+    def find_children_no_blockage(self, s, grid, closed_list):
         # directions for finding position of adjacent tiles to current state
         neighbors = [(-1, 0), (1, 0), (0, 1), (0, -1)]
 
@@ -70,7 +69,8 @@ class state:
             temp_pos = (s.pos[0] + neighbors[i][0], s.pos[1] + neighbors[i][1])
             # check if new pos is within range and if new spot is walkable
             # if 0 <= temp_pos[0] < 101 and 101 > temp_pos[1] >= 0 and temp_pos not in grid.blocked:
-            if 0 <= temp_pos[0] <= 4 and 4 >= temp_pos[1] >= 0 and temp_pos not in grid.blocked:
+            if 0 <= temp_pos[0] <= 4 and 4 >= temp_pos[1] >= 0 and temp_pos not in grid.blocked \
+                    and any(x.pos==temp_pos for x in closed_list) == False:
                 s.children.append(state(s, temp_pos))
                 # print(temp_pos)
 
@@ -152,10 +152,10 @@ class maze:
                 explore = explore[1]
                 closed_set.append(explore)
                 if flag:
-                    explore = explore.find_children_with_blockage(explore, self)
+                    explore = explore.find_children_with_blockage(explore, self, closed_set)
                     flag = False
                 else:
-                    explore = explore.find_children_no_blockage(explore, self)  # , self.blocked)
+                    explore = explore.find_children_no_blockage(explore, self, closed_set)  # , self.blocked)
 
                 #print(explore.children)
 
@@ -178,9 +178,12 @@ class maze:
                         # on line 12 but need to do stuff with the heap first
                         # if child has already been explored by some other parent, then you need to reset its f value
                         # time.sleep(5)
-                        if count == 4:
-                            temp = open_set.generate_temp()
-                        if child in open_set.heap_list:
+                        if count == 3:
+                            print(len(open_set.heap_list))
+                        temp = open_set.generate_temp()
+                            # print(len(temp))
+                            #self.checker(child, temp)
+                        if any(x.pos == child.pos for x in temp): #self.checker(child, open_set.heap_list):
                             open_set.reset_priority(child)
                         open_set.push((child.f, child))
                         ### HEREERERERERERER
@@ -211,12 +214,12 @@ class maze:
                 print('bad_Path')
         print('good path')
 
-    def checker (self, child, temp):
-        for x in temp:
-            if x.__eq__(child):
-                return True
-            else:
-                return False
+    def checker (self, child, heap):
+        for i, x in enumerate(heap):
+            if i != 0:
+                if child.pos[0] == heap[i][0].pos[1] and child.pos[1] == heap[i][1].pos[1]:
+                    return True
+        return False
 
 
         # now to move the agent

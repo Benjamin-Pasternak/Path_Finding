@@ -97,21 +97,6 @@ class min_heap:
             self.sift_down(i)
             i = i - 1
 
-    # input: state to be updated. output: void. function resets state in the array
-    def reset_priority(self, k):
-        # removes the 0 at the beginning of the list so that it can be heapified
-        self.heap_list.pop(0)
-        # linear search through heap for item to reset priority
-        for i, x in enumerate(self.heap_list):
-            # equals
-            if x[0] - 1 == k[0] and x[1] == k[1]:
-                temp0 = x[0]
-                self.heap_list[i] = (temp0, x[1])
-                break
-        # build the heap
-        self.build_heap(self.heap_list)
-        # print(self.heap_list)
-
     # # input: state to be updated. output: void. function resets state in the array
     # def reset_priority(self, k):
     #     # removes the 0 at the beginning of the list so that it can be heapified
@@ -120,12 +105,27 @@ class min_heap:
     #     for i, x in enumerate(self.heap_list):
     #         # equals
     #         if x[0] - 1 == k[0] and x[1] == k[1]:
-    #             k = (k[0] + 1, k[1])
-    #             self.heap_list.remove(k)
+    #             temp0 = x[0]
+    #             self.heap_list[i] = (temp0, x[1])
     #             break
     #     # build the heap
     #     self.build_heap(self.heap_list)
     #     # print(self.heap_list)
+
+    # input: state to be updated. output: void. function resets state in the array
+    def reset_priority(self, k):
+        # removes the 0 at the beginning of the list so that it can be heapified
+        self.heap_list.pop(0)
+        # linear search through heap for item to reset priority
+        for i, x in enumerate(self.heap_list):
+            # equals
+            if x[0] - 1 == k[0] and x[1] == k[1]:
+                k = (k[0] + 1, k[1])
+                self.heap_list.remove(k)
+                break
+        # build the heap
+        self.build_heap(self.heap_list)
+        # print(self.heap_list)
 
     # def remove_element(self, k):
     #     temp = self.heap_list
@@ -149,12 +149,10 @@ class min_heap:
         for i in self.heap_list:
             if count == 0:
                 count += 1
-                continue
             else:
                 temp.append(i[1])
+                count+=1
         return temp
-        print (temp)
-        sys.exit()
 
             #temp.append(x[1])
         #return temp
