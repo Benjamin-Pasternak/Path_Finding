@@ -119,9 +119,9 @@ class min_heap:
         # linear search through heap for item to reset priority
         for i, x in enumerate(self.heap_list):
             # equals
-            if x[0] - 1 == k[0] and x[1] == k[1]:
-                k = (k[0] + 1, k[1])
-                self.heap_list.remove(k)
+            if x[0] == k.f and x[1].pos == k.pos:
+                k = (k.f, k)
+                self.heap_list.remove(x)
                 break
         # build the heap
         self.build_heap(self.heap_list)

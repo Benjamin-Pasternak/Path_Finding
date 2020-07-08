@@ -237,6 +237,7 @@ grid = [[False, False, False, False, False],
 # sys.exit()
 temp_grid = maze(grid)
 temp_grid.driver()
+print('hiya')
 temp_grid.check_if_valid_path()
 
 # temp = maze(create_arr(50))
