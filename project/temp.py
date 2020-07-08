@@ -29,6 +29,10 @@ class state:
         self.f = 0
         self.search = 0
 
+    # override default tostring
+    def __repr__(self):
+        return str(self.pos) + "\ng h f: " + str(self.g) + " " + str(self.h) + " " + str(self.f)
+
     # #override
     # def __eq__(self, other):
     #     return self.pos[0] == other.pos[0] and self.pos[1] == other.pos[1]
@@ -148,6 +152,8 @@ class maze:
                 # print(open_set.heap_list)
                 #print('ITERATION 1')
                 #print(open_set.heap_list)
+                if open_set.current_size == 0:
+                    break
                 explore = open_set.pop()
                 explore = explore[1]
                 closed_set.append(explore)
@@ -163,6 +169,7 @@ class maze:
                 # need to figure out tie break
                 count = 0
                 for child in explore.children:
+                    print(child)
                     count = count + 1
                     if child.search < counter:
                         child.g = 1000
