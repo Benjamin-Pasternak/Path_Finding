@@ -29,9 +29,13 @@ class state:
         self.f = 0
         self.search = 0
 
-    # override
-    # def __eq__(self, other):
-    #     return self.pos == other.pos
+    #override
+    def __eq__(self, other):
+        return self.pos == other.pos
+
+
+
+
     def update_f(self):
         self.f = self.g + self.h
 
@@ -176,7 +180,7 @@ class maze:
                         # time.sleep(5)
                         if count == 4:
                             temp = open_set.generate_temp()
-                        if child in temp:
+                        if child in open_set.heap_list:
                             open_set.reset_priority(child)
                         open_set.push((child.f, child))
                         ### HEREERERERERERER
@@ -206,6 +210,14 @@ class maze:
             if self.grid[i[0]][i[1]] == True:
                 print('bad_Path')
         print('good path')
+
+    def checker (self, child, temp):
+        for x in temp:
+            if x.__eq__(child):
+                return True
+            else:
+                return False
+
 
         # now to move the agent
 
