@@ -1,6 +1,7 @@
+import sys
 import matplotlib as mpl
 import numpy as np
-from queue import PriorityQueue
+from min_heap import *
 
 
 # this file imports user selected grid
@@ -9,7 +10,6 @@ def create_arr(num):
     temp = './arrs/backTrackerMazes/' + str(num) + '.txt'
     grid = np.loadtxt(fname=temp, dtype=bool)
     return grid
-    # print(grid)
 
 
 class state:
@@ -26,95 +26,160 @@ class state:
     def __eq__(self, other):
         return self.pos == other.pos
 
+    # override
+    def __repr__(self):
+        retstr = str(self.pos) + "\ng h f: " + str(self.g) + " " + str(self.h) + " " + str(self.f)
+        if self.parent is not None:
+            retstr = retstr + "\nparent" + str(self.parent.pos)
+        if len(self.children) > 0:
+            retstr = retstr + "\nchildren:" + str(self.children)
+        return retstr
+
+    def update_f(self):
+        self.f = self.g + self.h
+
+    def manhattan_distance(self, target):
+        self.h = abs(self.pos[0] - target[0]) + abs(self.pos[1] - target[1])
+
+    # flag = False to ignore blockage
+    def find_children(self, maze, closed, flag=True):
+        neighbors = [(-1, 0), (1, 0), (0, 1), (0, -1)]
+        for action in neighbors:
+            temp_pos = (self.pos[0] + action[0], self.pos[1] + action[1])
+            if 0 <= temp_pos[0] < maze.size[0] and 0 <= temp_pos[1] < maze.size[1]:
+                if temp_pos in closed:
+                    continue
+                if flag and maze.grid[temp_pos[0]][temp_pos[1]]:
+                    closed.append(temp_pos)
+                    continue
+                self.children.append(temp_pos)
+
+
+# Iterable class for list of states
+class states_list:
+    def __init__(self):
+        self.stateList = []
+        self.ptr = 0
+
+    def append(self, state):
+        index = 0
+        for i in self.stateList:
+            if i.pos[0] + i.pos[1] < state.pos[0] + state.pos[1]:
+                index = index + 1
+                continue
+            if i.pos[0] + i.pos[1] == state.pos[0] + state.pos[1]:
+                if i.pos[0] < state.pos[0]:
+                    index = index + 1
+                    continue
+                break
+        self.stateList.insert(index, state)
+
+    def __iter__(self):
+        # reset index before iteration
+        self.ptr = 0
+        return self
+
+    def __next__(self):
+        if len(self.stateList) > 0 and self.ptr < len(self.stateList):
+            self.ptr += 1
+            return self.stateList[self.ptr - 1]
+        raise StopIteration()
+
 
 class maze:
     # constructor
-    def __init__(self, grid):
-        self.start = (0, 0)
-        self.end = (100, 100)
+    def __init__(self, grid, start=None, end=None):
+        self.size = (len(grid), len(grid[0]))
+        if start is None:
+            self.start = (0, 0)
+        else:
+            self.start = start
+        if end is None:
+            self.end = (self.size[0], self.size[1])
+        else:
+            self.end = end
+        self.state_list = states_list()
         self.grid = grid
+        self.final_path = [self.start]
 
-    def astar(self, grid, start=(0, 0), end=(100, 100)):
+    # return empty list if target is not reached
+    def make_path(self, s, g):
+        retlist = [g]
+        ptr = g
+        while ptr.parent is not None:
+            retlist.append(ptr.parent)
+            if ptr is s:
+                break
+            ptr = ptr.parent
+        if ptr is not s:
+            return []
+        retlist.reverse()
+        return retlist
+
+    def astar(self):
+        counter = 0
         # initialize start and end states respectively
-        start_state = state(None, start)
-        start_state.g = 0
-        start_state.f = 0
-        end_state = state(None, end)
-        end_state.g = float('inf')
-        end_state.f = 0
+        start_state = state(None, self.start)
+        end_state = state(None, self.end)
+        self.state_list.append(start_state)
+        self.state_list.append(end_state)
 
-        # initialize start open and closed lists respectively
-        open_list = PriorityQueue()
-        closed_list = []
+        while start_state is not end_state:
+            print(start_state.pos)
+            counter = counter + 1
 
-        # add first state gets added into the priority queue
-        open_list.put(start_state)
-        closed_list.append(start_state)
+            start_state.g = 0
+            start_state.manhattan_distance(end_state.pos)
+            start_state.update_f()
+            start_state.search = counter
 
-        while open_list.qsize() > 0:
-            expand_state = open_list.get()
-            counter = 0
-            # for counter, item in enumerate
+            end_state.g = float('inf')
+            end_state.update_f()
+            end_state.search = counter
 
-    # need to make sure its walkable terrain
-    def find_children(self, s, grid):
-        # directions for finding position of adjacent tiles to current state
-        left = (-1, 0)
-        right = (1, 0)
-        up = (0, 1)
-        down = (0, -1)
+            open_list = min_heap()
+            closed_list = []
 
-        # find the children by by looking at adjacent squares, and add them to list for the state
-        # check also for if squares are walkable
-        for i in range(4):
-            if i == 0:
-                temp_pos = (s.pos[0] + left[0], s.pos[1] + left[1])
-                # check if new pos is within range and if new spot is walkable
-                if 0 <= temp_pos[0] < 101 and 101 > temp_pos[1] >= 0 and not grid[temp_pos[0]][temp_pos[1]]:
-                    s.children.append(state(s, temp_pos))
-                    print(temp_pos)
-            elif i == 1:
-                temp_pos = (s.pos[0] + right[0], s.pos[1] + right[1])
-                # check if new pos is within range and if new spot is walkable
-                if 0 <= temp_pos[0] < 101 and 101 > temp_pos[1] >= 0 and not grid[temp_pos[0]][temp_pos[1]]:
-                    s.children.append(state(s, temp_pos))
-                    print(temp_pos)
-            elif i == 2:
-                temp_pos = (s.pos[0] + up[0], s.pos[1] + up[1])
-                # check if new pos is within range and if new spot is walkable
-                if 0 <= temp_pos[0] < 101 and 101 > temp_pos[1] >= 0 and not grid[temp_pos[0]][temp_pos[1]]:
-                    s.children.append(state(s, temp_pos))
-                    print(temp_pos)
-            elif i == 3:
-                temp_pos = (s.pos[0] + down[0], s.pos[1] + down[1])
-                # check if new pos is within range and if new spot is walkable
-                if 0 <= temp_pos[0] < 101 and 101 > temp_pos[1] >= 0 and not grid[temp_pos[0]][temp_pos[1]]:
-                    s.children.append(state(s, temp_pos))
-                    print(temp_pos)
-        print(len(s.children))
-        return s
+            open_list.push((start_state.f, start_state))
 
-        # this function computes the manhattan distance given 2 tuples (x,y)
-        # ex: xy1 = (2, 2), xy2 = (4, 4) yields 4
+            # ComputePath()
+            flag = True
+            while end_state.g > open_list.peek():
+                curr_state = open_list.pop()[1]
+                # curr_state = state(None, (0, 0))
+                # if curr_state.pos in closed_list:
+                #     continue
+                closed_list.append(curr_state.pos)
+                curr_state.find_children(self, closed_list, flag)
+                flag = False
+                for child_pos in curr_state.children:
+                    child = state(None, child_pos)
+                    if child in self.state_list:
+                        child = self.state_list.stateList[self.state_list.ptr - 1]
+                    else:
+                        child.manhattan_distance(end_state.pos)
+                    if child.search < counter:
+                        child.g = float('inf')
+                        child.search = counter
+                    if child.g > curr_state.g + 1:
+                        child.g = curr_state.g + 1
+                        child.update_f()
+                        child.parent = curr_state
+                        if child in open_list:
+                            open_list.reset_priority(child)
+                        open_list.push((child.f, child))
 
-    def manhattan_distance(self, xy1, xy2):
-        return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
+            path = self.make_path(start_state, end_state)
+            if len(path) == 0:
+                sys.exit('CANNOT REACH TARGET...')
+            start_state = path[1]
+            self.final_path.append(path[1].pos)
 
 
-# xy1 = (2, 2)
-# xy2 = (4, 4)
-# print(manhattan_distance(xy1, xy2))
-# print(float('inf'))
-# col = 5
-# row = 5
-# # open set = heapq
-# # closed set = visited
-# #grid = np.ones((row, col), dtype=bool)
-#
-# print(grid)
-# # print(grid)
-r = state(None, (1, 1))
-k = maze(create_arr(50))
-# print (k.grid)
-
-k.find_children(r, k.grid)
+grid = [[False, False, False, False, False],
+        [False, False, True, False, False],
+        [False, False, True, True, False],
+        [False, False, True, True, False],
+        [False, False, False, True, False]]
+test_maze = maze(grid, (4, 1), (4, 4))
+test_maze.astar()
