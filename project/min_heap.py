@@ -7,6 +7,25 @@ class min_heap:
     def __init__(self):
         self.heap_list = [0]
         self.current_size = 0
+        self.ptr = 0
+
+    # override
+    def __repr__(self):
+        return str(self.heap_list)
+
+    # override
+    def __sizeof__(self):
+        return self.current_size
+
+    def __iter__(self):
+        self.ptr = 0
+        return self
+
+    def __next__(self):
+        self.ptr += 1
+        if self.ptr <= self.current_size:
+            return  self.heap_list[self.ptr][1]
+        raise StopIteration()
 
     # The `SIFT UP' operation starts with a value in a leaf node. It moves the value up the path towards the root by
     # successively exchanging the value with the value in the node above. The operation continues until the value
@@ -84,6 +103,8 @@ class min_heap:
     # input: void
     # output: state with highest priority
     def peek(self):
+        if self.current_size < 1:
+            return float('inf')
         return self.heap_list[1][0]
 
     # rebuilds heap with updated element priority

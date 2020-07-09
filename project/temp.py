@@ -53,16 +53,16 @@ class state:
             # check if new pos is within range and if new spot is walkable
             # if 0 <= temp_pos[0] < 101 and 101 > temp_pos[1] >= 0 and not grid[temp_pos[0]][temp_pos[1]]:
             if 0 <= temp_pos[0] <= 4 and 4 >= temp_pos[1] >= 0 and grid.grid[temp_pos[0]][temp_pos[1]] is not True \
-                    and any(x.pos==temp_pos for x in closed_list) == False:
+                    and any(x.pos == temp_pos for x in closed_list) == False:
                 s.children.append(state(s, temp_pos))
             # elif 0 <= temp_pos[0] < 101 and 101 > temp_pos[1] >= 0 and grid.grid[temp_pos[0]][temp_pos[1]]:
             elif 0 <= temp_pos[0] <= 4 and 4 >= temp_pos[1] >= 0 and grid.grid[temp_pos[0]][temp_pos[1]] is True:
                 grid.blocked.append(temp_pos)
-                #print(temp_pos)
-        #print(grid.blocked)
+                # print(temp_pos)
+        # print(grid.blocked)
         # print(len(s.children))
         # print(s.children[0].pos)
-        #sys.exit()
+        # sys.exit()
         return s
 
     def find_children_no_blockage(self, s, grid, closed_list):
@@ -74,7 +74,7 @@ class state:
             # check if new pos is within range and if new spot is walkable
             # if 0 <= temp_pos[0] < 101 and 101 > temp_pos[1] >= 0 and temp_pos not in grid.blocked:
             if 0 <= temp_pos[0] <= 4 and 4 >= temp_pos[1] >= 0 and temp_pos not in grid.blocked \
-                    and any(x.pos==temp_pos for x in closed_list) == False:
+                    and any(x.pos == temp_pos for x in closed_list) == False:
                 s.children.append(state(s, temp_pos))
                 # print(temp_pos)
 
@@ -132,6 +132,7 @@ class maze:
             start.h = manhattan_distance(start.pos, goal.pos)
             start.f = f_val_calc(start.h, start.g)
             open_set.push((start.f, start))
+            print("start: " + str(start))
 
             # beginning of A*
             # flag determines which child gathering function we are using
@@ -150,8 +151,8 @@ class maze:
             while goal.g > temp_value:  # open_set.peek():
                 # first open_set.get() = tuple (priority: f, item: state)
                 # print(open_set.heap_list)
-                #print('ITERATION 1')
-                #print(open_set.heap_list)
+                # print('ITERATION 1')
+                # print(open_set.heap_list)
                 if open_set.current_size == 0:
                     break
                 explore = open_set.pop()
@@ -163,41 +164,41 @@ class maze:
                 else:
                     explore = explore.find_children_no_blockage(explore, self, closed_set)  # , self.blocked)
 
-                #print(explore.children)
+                print(explore.children)
 
                 # what if explore.children = empty???
                 # need to figure out tie break
                 count = 0
                 for child in explore.children:
-                    print(child)
                     count = count + 1
                     if child.search < counter:
                         child.g = 1000
                         child.search = counter
                     if child.g > explore.g + 1:
-                        #print(True)
-                       #print('woof \n \n')
+                        # print(True)
+                        # print('woof \n \n')
                         child.g = explore.g + 1
                         child.parent = explore
                         # new 12:37 pm july 7 2020
                         child.h = manhattan_distance(child.pos, goal.pos)
                         child.f = child.h + child.g
+                        print("child: " + str(child))
                         # on line 12 but need to do stuff with the heap first
                         # if child has already been explored by some other parent, then you need to reset its f value
                         # time.sleep(5)
                         if count == 3:
                             print(len(open_set.heap_list))
                         temp = open_set.generate_temp()
-                            # print(len(temp))
-                            #self.checker(child, temp)
-                        if any(x.pos == child.pos for x in temp): #self.checker(child, open_set.heap_list):
+                        # print(len(temp))
+                        # self.checker(child, temp)
+                        if any(x.pos == child.pos for x in temp):  # self.checker(child, open_set.heap_list):
                             open_set.reset_priority(child)
                         open_set.push((child.f, child))
                         ### HEREERERERERERER
-                    #open_set.printer()
-                    #print(open_set.heap_list)
-                    # if count == 4:
-                    #     sys.exit()
+                    # open_set.printer()
+                    # print(open_set.heap_list)
+                    if count == 4:
+                        sys.exit()
 
             # since heap always has 0 as first element, empty heap will be 1 long
             if open_set.current_size == 1:
@@ -221,20 +222,17 @@ class maze:
                 print('bad_Path')
         print('good path')
 
-    def checker (self, child, heap):
+    def checker(self, child, heap):
         for i, x in enumerate(heap):
             if i != 0:
                 if child.pos[0] == heap[i][0].pos[1] and child.pos[1] == heap[i][1].pos[1]:
                     return True
         return False
 
-
         # now to move the agent
 
 
-
-
-
+# sys.exit()
 grid = [[False, False, False, False, False],
         [False, False, True, False, False],
         [False, False, True, True, False],
