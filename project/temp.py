@@ -52,7 +52,8 @@ class state:
                     and any(x.pos==temp_pos for x in closed_list) == False:
                 s.children.append(state(s, temp_pos))
             # elif 0 <= temp_pos[0] < 101 and 101 > temp_pos[1] >= 0 and grid.grid[temp_pos[0]][temp_pos[1]]:
-            elif 0 <= temp_pos[0] <= 4 and 4 >= temp_pos[1] >= 0 and grid.grid[temp_pos[0]][temp_pos[1]] is True:
+            elif 0 <= temp_pos[0] <= 4 and 4 >= temp_pos[1] >= 0 and grid.grid[temp_pos[0]][temp_pos[1]] is True \
+                and any(x.pos==temp_pos for x in closed_list) == False:
                 grid.blocked.append(temp_pos)
                 #print(temp_pos)
         #print(grid.blocked)
@@ -77,12 +78,16 @@ class state:
         # print(len(s.children))
         return s
 
-    def find_path(self, s):
-        path = []
-        tmp = s
-        while tmp.parent is not None:
-            path.append(tmp.pos)
-        return path
+
+
+
+def find_path(s, start):
+    path = []
+    tmp = s
+    while tmp is not start and tmp is not None:
+        path.append(tmp.pos)
+        tmp = tmp.parent
+    return path
 
 
 # this function computes the manhattan distance given 2 tuples (x,y)
@@ -150,8 +155,12 @@ class maze:
                 #print(open_set.heap_list)
                 explore = open_set.pop()
                 explore = explore[1]
+                if explore.pos == goal.pos:
+                    goal.parent = explore.parent
+                    break
                 closed_set.append(explore)
                 if flag:
+                    explore.children = []
                     explore = explore.find_children_with_blockage(explore, self, closed_set)
                     flag = False
                 else:
@@ -178,8 +187,8 @@ class maze:
                         # on line 12 but need to do stuff with the heap first
                         # if child has already been explored by some other parent, then you need to reset its f value
                         # time.sleep(5)
-                        if count == 3:
-                            print(len(open_set.heap_list))
+                        # if count == 3:
+                            #print(len(open_set.heap_list))
                         temp = open_set.generate_temp()
                             # print(len(temp))
                             #self.checker(child, temp)
@@ -198,15 +207,26 @@ class maze:
 
             # do we reset everything after this!!! YES WE DO!
             # this should be valid
-            optimistic_path = self.goal.find_path(goal)
-            optimistic_path.reverse()
+            optimistic_path = find_path(goal,start)
+            #optimistic_path.reverse()
 
             # moving agent along the path
-            for p in optimistic_path:
+            reverse_it = len(optimistic_path)-1
+            while reverse_it >= 0:
                 # basically if point on grid is blocked or true its no good
-                if not (p in self.blocked or self.grid[p[0]][p[1]]):
-                    self.path.append(p)
-                    self.start = state(self.start, p)
+                if optimistic_path[reverse_it] not in self.blocked and \
+                        self.grid[optimistic_path[reverse_it][0]][optimistic_path[reverse_it][1]] != True \
+                        and start.pos != goal.pos:
+                    self.path.append(optimistic_path[reverse_it])
+                    new_start = None
+                    for i, x in enumerate(start.children):
+                        a = x.pos == optimistic_path[reverse_it]
+                        if x.pos == optimistic_path[reverse_it]:
+                            new_start = start.children[i]
+                    start = new_start
+                else:
+                    break
+                reverse_it -= 1
 
     def check_if_valid_path(self):
         for i in self.path:
