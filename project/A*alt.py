@@ -149,6 +149,7 @@ class maze:
         self.grid = grid
         self.final_path = [self.start]
         self.blocked_list = []
+        self.max_g = len(grid) * 2
 
     # return new state with h calculated, else existing state
     def get_state(self, pos):
@@ -208,7 +209,8 @@ class maze:
             open_list = min_heap()
             closed_list = []
 
-            open_list.push((start_state.f, start_state))
+            open_list.push((start_state.f * self.max_g - start_state.g, start_state))
+            # open_list.push((start_state.f, start_state))
 
             # ComputePath
             flag = True
@@ -231,7 +233,8 @@ class maze:
                         child.parent = curr_state
                         if child.in_open and child.search == counter:
                             open_list.reset_priority(child)
-                        open_list.push((child.f, child))
+                        open_list.push((child.f * self.max_g - child.g, child))
+                        # open_list.push((child.f, child))
                     child.search = counter
 
             if open_list.current_size == 0:
