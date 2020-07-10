@@ -1,5 +1,6 @@
 import sys
-import matplotlib as mpl
+import timeit
+import tracemalloc
 import numpy as np
 from min_heap import *
 # from project.gen_maze import maze_generator
@@ -23,6 +24,7 @@ class state:
         self.h = 0
         self.f = 0
         self.search = 0
+        self.in_open = False
 
     # override
     def __eq__(self, other):
@@ -66,17 +68,32 @@ class states_list:
         self.ptr = 0
 
     def append(self, state):
-        index = 0
-        for i in self.stateList:
-            if i.pos[0] + i.pos[1] < state.pos[0] + state.pos[1]:
-                index = index + 1
-                continue
-            if i.pos[0] + i.pos[1] == state.pos[0] + state.pos[1]:
-                if i.pos[0] < state.pos[0]:
-                    index = index + 1
-                    continue
-                break
-        self.stateList.insert(index, state)
+        # index = 0
+        # for i in self.stateList:
+        #     if i.pos[0] + i.pos[1] < state.pos[0] + state.pos[1]:
+        #         index = index + 1
+        #         continue
+        #     if i.pos[0] + i.pos[1] == state.pos[0] + state.pos[1]:
+        #         if i.pos[0] < state.pos[0]:
+        #             index = index + 1
+        #             continue
+        #         break
+        left = 0
+        right = len(self.stateList) - 1
+        curri = 0
+        while left <= right:
+            curri = int((left + right) / 2)
+            curr = self.stateList[curri]
+            if curr.pos[0] + curr.pos[1] < state.pos[0] + state.pos[1]:
+                left = curri + 1
+            if curr.pos[0] + curr.pos[1] > state.pos[0] + state.pos[1]:
+                right = curri - 1
+            if curr.pos[0] + curr.pos[1] == state.pos[0] + state.pos[1]:
+                if curr.pos[0] <= state.pos[0]:
+                    left = curri + 1
+                if curr.pos[0] > state.pos[0]:
+                    right = curri - 1
+        self.stateList.insert(curri, state)
 
     def __iter__(self):
         # reset index before iteration
@@ -88,6 +105,27 @@ class states_list:
             self.ptr += 1
             return self.stateList[self.ptr - 1]
         raise StopIteration()
+
+    def find(self, state):
+        left = 0
+        right = len(self.stateList) - 1
+
+        while left <= right:
+            curri = int((left + right) / 2)
+            curr = self.stateList[curri]
+            if curr.pos[0] + curr.pos[1] < state.pos[0] + state.pos[1]:
+                left = curri + 1
+            if curr.pos[0] + curr.pos[1] > state.pos[0] + state.pos[1]:
+                right = curri - 1
+            if curr.pos[0] + curr.pos[1] == state.pos[0] + state.pos[1]:
+                if curr.pos[0] < state.pos[0]:
+                    left = curri + 1
+                if curr.pos[0] > state.pos[0]:
+                    right = curri - 1
+                if curr.pos[0] == state.pos[0]:
+                    return curr
+
+        return None
 
 
 class maze:
@@ -114,13 +152,12 @@ class maze:
 
     # return new state with h calculated, else existing state
     def get_state(self, pos):
-        temp = state(pos)
-        if temp in self.state_list:
-            return self.state_list.stateList[self.state_list.ptr - 1]
-        else:
+        temp = self.state_list.find(state(pos))
+        if temp is None:
+            temp = state(pos)
             temp.manhattan_distance(self.end)
             self.state_list.append(temp)
-            return temp
+        return temp
 
     # return empty list if target is not reached
     def make_path(self, s, g, final=False):
@@ -150,7 +187,7 @@ class maze:
         self.state_list.append(end_state)
 
         while start_state is not end_state:
-            # stopper = input()
+            # input()
             print(start_state.pos)
             counter = counter + 1
             print(counter)
@@ -186,25 +223,16 @@ class maze:
                     child = self.get_state(child_pos)
                     if child.search < counter:
                         child.g = float('inf')
-                        child.search = counter
                         child.parent = None
                         child.children = []
                     if child.g > curr_state.g + 1:
                         child.g = curr_state.g + 1
                         child.update_f()
                         child.parent = curr_state
-                        if child in open_list:
+                        if child.in_open and child.search == counter:
                             open_list.reset_priority(child)
-                        flag2 = False
-                        for i, x in enumerate(open_list.heap_list):
-                            if i ==0:
-                                continue
-                            # print(open_list.heap_list[i][1])
-                            # sys.exit()
-                            if child.pos == open_list.heap_list[i][1].pos:
-                                flag2 = True
-                        if flag2 != True:
-                            open_list.push((child.f, child))
+                        open_list.push((child.f, child))
+                    child.search = counter
 
             if open_list.current_size == 0:
                 print('Cannot reach target...')
@@ -224,6 +252,7 @@ class maze:
         # print("result:" + str(self.make_path(self.start, end_state, True)))
 
 
+tracemalloc.start()
 # grid = [[False, False, False, False, False],
 #         [False, False, False, False, False],
 #         [False, False, False, False, False],
@@ -256,7 +285,12 @@ grid = [[False, True, True, False, False, False, False, False, True, False],
 # Output
 # movement:[(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (6, 1), (7, 1), (8, 1), (8, 2), (9, 2), (9, 3),
 #           (8, 3), (8, 4), (8, 5), (9, 5), (9, 6), (9, 7), (9, 8), (9, 9)]
-#test_maze = maze(grid)
-test_maze = maze(create_arr(50))
+test_maze = maze(grid)
+start = timeit.default_timer()
 test_maze.astar()
-
+stop = timeit.default_timer()
+current, peak = tracemalloc.get_traced_memory()
+print(f"Current memory usage is {current / 10**6}MB; Peak was {peak / 10**6}MB")
+tracemalloc.stop()
+time = stop - start
+print('Time Taken: {}s'.format(time))
