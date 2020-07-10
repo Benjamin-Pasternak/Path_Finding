@@ -207,6 +207,7 @@ class maze:
                         if any(x.pos == child.pos for x in temp):  # self.checker(child, open_set.heap_list):
                             open_set.reset_priority(child)
                         open_set.push((child.f, child))
+                        print(len(open_set.heap_list))
                         ### HEREERERERERERER
                     # open_set.printer()
                     # print(open_set.heap_list)
@@ -239,6 +240,7 @@ class maze:
                 else:
                     break
                 reverse_it -= 1
+            print(self.path)
             # stop = timeit.default_timer()
             # time = stop - starting
             # print('Time Taken: {}s'.format(time))

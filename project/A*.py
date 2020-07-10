@@ -53,8 +53,8 @@ class state:
                 if temp_pos in closed or temp_pos in blocked:
                     continue
                 if flag and maze.grid[temp_pos[0]][temp_pos[1]]:
-                    closed.append(temp_pos)
-                    blocked.append(temp_pos)
+                    closed.add(temp_pos)
+                    blocked.add(temp_pos)
                     continue
                 self.children.append(temp_pos)
 
@@ -110,7 +110,7 @@ class maze:
         self.state_list = states_list()
         self.grid = grid
         self.final_path = [self.start]
-        self.blocked_list = []
+        self.blocked_list = set()
 
     # return new state with h calculated, else existing state
     def get_state(self, pos):
@@ -169,7 +169,7 @@ class maze:
             end_state.search = counter
 
             open_list = min_heap()
-            closed_list = []
+            closed_list = set()
 
             open_list.push((start_state.f, start_state))
 
@@ -179,7 +179,7 @@ class maze:
                 # print("open list:" + str(open_list))
                 curr_state = open_list.pop()[1]
                 # print("closed list:" + str(closed_list))
-                closed_list.append(curr_state.pos)
+                closed_list.add(curr_state.pos)
                 curr_state.find_children(self, closed_list, self.blocked_list, flag)
                 flag = False
                 for child_pos in curr_state.children:
@@ -195,16 +195,8 @@ class maze:
                         child.parent = curr_state
                         if child in open_list:
                             open_list.reset_priority(child)
-                        flag2 = False
-                        for i, x in enumerate(open_list.heap_list):
-                            if i ==0:
-                                continue
-                            # print(open_list.heap_list[i][1])
-                            # sys.exit()
-                            if child.pos == open_list.heap_list[i][1].pos:
-                                flag2 = True
-                        if flag2 != True:
-                            open_list.push((child.f, child))
+                            continue
+                        open_list.push((child.f, child))
 
             if open_list.current_size == 0:
                 print('Cannot reach target...')
