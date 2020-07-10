@@ -1,9 +1,12 @@
 import sys
 import os
-import matplotlib as mpl
+import matplotlib
+matplotlib.use('PS')
+import matplotlib.pyplot as plt
 import numpy as np
+import tracemalloc
 from min_heap import *
-import time
+import time, timeit
 
 
 # to do list
@@ -137,7 +140,7 @@ class maze:
             start.h = manhattan_distance(start.pos, goal.pos)
             start.f = f_val_calc(start.h, start.g)
             open_set.push((start.f, start))
-            print("start: " + str(start))
+           # print("start: " + str(start))
 
             # beginning of A*
             # flag determines which child gathering function we are using
@@ -173,7 +176,7 @@ class maze:
                 else:
                     explore = explore.find_children_no_blockage(explore, self, closed_set)  # , self.blocked)
 
-                print(explore.children)
+                #print(explore.children)
 
                 # what if explore.children = empty???
                 # need to figure out tie break
@@ -191,7 +194,7 @@ class maze:
                         # new 12:37 pm july 7 2020
                         child.h = manhattan_distance(child.pos, goal.pos)
                         child.f = child.h + child.g
-                        print("child: " + str(child))
+                        # print("child: " + str(child))
                         # on line 12 but need to do stuff with the heap first
                         # if child has already been explored by some other parent, then you need to reset its f value
                         # time.sleep(5)
@@ -237,6 +240,7 @@ class maze:
                 reverse_it -= 1
 
     def check_if_valid_path(self):
+        print(self.path)
         for i in self.path:
             if self.grid[i[0]][i[1]] == True:
                 print('bad_Path')
@@ -261,8 +265,15 @@ grid = [[False, False, False, False, False],
 # print(grid[4][1])
 # sys.exit()
 temp_grid = maze(grid)
+start = timeit.default_timer()
+tracemalloc.start()
 temp_grid.driver()
-print('hiya')
+stop = timeit.default_timer()
+current, peak = tracemalloc.get_traced_memory()
+print(f"Current memory usage is {current / 10**6}MB; Peak was {peak / 10**6}MB")
+tracemalloc.stop()
+time = stop - start
+print('Time Taken: {}s'.format(time))
 temp_grid.check_if_valid_path()
 
 # temp = maze(create_arr(50))
