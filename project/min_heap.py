@@ -1,6 +1,6 @@
 # remove import later
 import sys
-
+import timeit
 
 class min_heap:
     # constructor
@@ -135,6 +135,7 @@ class min_heap:
 
     # input: state to be updated. output: void. function resets state in the array
     def reset_priority(self, k):
+        starting = timeit.default_timer()
         # removes the 0 at the beginning of the list so that it can be heapified
         self.heap_list.pop(0)
         # linear search through heap for item to reset priority
@@ -146,6 +147,10 @@ class min_heap:
                 break
         # build the heap
         self.build_heap(self.heap_list)
+        stop = timeit.default_timer()
+        time = stop - starting
+        print('Time Taken: {}s'.format(time))
+        print(len(self.heap_list))
         # print(self.heap_list)
 
     # def remove_element(self, k):

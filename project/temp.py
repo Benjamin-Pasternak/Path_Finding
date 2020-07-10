@@ -15,11 +15,11 @@ import time, timeit
 
 # this file imports user selected grid
 # num is the user's number choice
-# def create_arr(num):
-#     temp = './arrs/backTrackerMazes/' + str(num) + '.txt'
-#     grid = np.loadtxt(fname=temp, dtype=bool)
-#     return grid
-#     # print(grid)
+def create_arr(num):
+    temp = './arrs/backTrackerMazes/' + str(num) + '.txt'
+    grid = np.loadtxt(fname=temp, dtype=bool)
+    return grid
+    # print(grid)
 
 
 class state:
@@ -55,11 +55,11 @@ class state:
             # sys.exit()
             # check if new pos is within range and if new spot is walkable
             # if 0 <= temp_pos[0] < 101 and 101 > temp_pos[1] >= 0 and not grid[temp_pos[0]][temp_pos[1]]:
-            if 0 <= temp_pos[0] <= 4 and 4 >= temp_pos[1] >= 0 and grid.grid[temp_pos[0]][temp_pos[1]] is not True \
+            if 0 <= temp_pos[0] <= 100 and 100 >= temp_pos[1] >= 0 and grid.grid[temp_pos[0]][temp_pos[1]] is not True \
                     and any(x.pos == temp_pos for x in closed_list) == False:
                 s.children.append(state(s, temp_pos))
             # elif 0 <= temp_pos[0] < 101 and 101 > temp_pos[1] >= 0 and grid.grid[temp_pos[0]][temp_pos[1]]:
-            elif 0 <= temp_pos[0] <= 4 and 4 >= temp_pos[1] >= 0 and grid.grid[temp_pos[0]][temp_pos[1]] is True \
+            elif 0 <= temp_pos[0] <= 100 and 100 >= temp_pos[1] >= 0 and grid.grid[temp_pos[0]][temp_pos[1]] is True \
                 and any(x.pos==temp_pos for x in closed_list) == False:
                 grid.blocked.append(temp_pos)
                 # print(temp_pos)
@@ -77,7 +77,7 @@ class state:
             temp_pos = (s.pos[0] + neighbors[i][0], s.pos[1] + neighbors[i][1])
             # check if new pos is within range and if new spot is walkable
             # if 0 <= temp_pos[0] < 101 and 101 > temp_pos[1] >= 0 and temp_pos not in grid.blocked:
-            if 0 <= temp_pos[0] <= 4 and 4 >= temp_pos[1] >= 0 and temp_pos not in grid.blocked \
+            if 0 <= temp_pos[0] <= 100 and 100 >= temp_pos[1] >= 0 and temp_pos not in grid.blocked \
                     and any(x.pos == temp_pos for x in closed_list) == False:
                 s.children.append(state(s, temp_pos))
                 # print(temp_pos)
@@ -111,10 +111,10 @@ def f_val_calc(h, g):
 class maze:
     # constructor
     def __init__(self, grid):
-        # self.start = state(None, (0, 0))
-        # self.goal = state(None, (100, 100))
-        self.start = state(None, (4, 2))
-        self.goal = state(None, (4, 4))
+        self.start = state(None, (0, 0))
+        self.goal = state(None, (100, 100))
+        # self.start = state(None, (4, 2))
+        # self.goal = state(None, (4, 4))
         self.grid = grid
         self.blocked = []
         self.path = []
@@ -174,6 +174,7 @@ class maze:
                     explore = explore.find_children_with_blockage(explore, self, closed_set)
                     flag = False
                 else:
+                    explore.children = []
                     explore = explore.find_children_no_blockage(explore, self, closed_set)  # , self.blocked)
 
                 #print(explore.children)
@@ -209,8 +210,8 @@ class maze:
                         ### HEREERERERERERER
                     # open_set.printer()
                     # print(open_set.heap_list)
-                    if count == 4:
-                        sys.exit()
+                    # if count == 4:
+                    #     sys.exit()
 
             # since heap always has 0 as first element, empty heap will be 1 long
             if open_set.current_size == 1:
@@ -238,6 +239,12 @@ class maze:
                 else:
                     break
                 reverse_it -= 1
+            # stop = timeit.default_timer()
+            # time = stop - starting
+            # print('Time Taken: {}s'.format(time))
+            #sys.exit()
+
+
 
     def check_if_valid_path(self):
         print(self.path)
@@ -264,7 +271,7 @@ grid = [[False, False, False, False, False],
         [False, False, False, True, False]]
 # print(grid[4][1])
 # sys.exit()
-temp_grid = maze(grid)
+temp_grid = maze(create_arr(50))
 start = timeit.default_timer()
 tracemalloc.start()
 temp_grid.driver()

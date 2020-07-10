@@ -195,7 +195,16 @@ class maze:
                         child.parent = curr_state
                         if child in open_list:
                             open_list.reset_priority(child)
-                        open_list.push((child.f, child))
+                        flag2 = False
+                        for i, x in enumerate(open_list.heap_list):
+                            if i ==0:
+                                continue
+                            # print(open_list.heap_list[i][1])
+                            # sys.exit()
+                            if child.pos == open_list.heap_list[i][1].pos:
+                                flag2 = True
+                        if flag2 != True:
+                            open_list.push((child.f, child))
 
             if open_list.current_size == 0:
                 print('Cannot reach target...')
@@ -247,6 +256,7 @@ grid = [[False, True, True, False, False, False, False, False, True, False],
 # Output
 # movement:[(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (6, 1), (7, 1), (8, 1), (8, 2), (9, 2), (9, 3),
 #           (8, 3), (8, 4), (8, 5), (9, 5), (9, 6), (9, 7), (9, 8), (9, 9)]
-test_maze = maze(grid)
+#test_maze = maze(grid)
+test_maze = maze(create_arr(50))
 test_maze.astar()
 
