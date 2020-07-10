@@ -1,6 +1,6 @@
 # remove import later
 import sys
-import timeit
+
 
 class min_heap:
     # constructor
@@ -24,7 +24,7 @@ class min_heap:
     def __next__(self):
         self.ptr += 1
         if self.ptr <= self.current_size:
-            return  self.heap_list[self.ptr][1]
+            return self.heap_list[self.ptr][1]
         raise StopIteration()
 
     # The `SIFT UP' operation starts with a value in a leaf node. It moves the value up the path towards the root by
@@ -40,6 +40,7 @@ class min_heap:
 
     # insert item into heap
     def push(self, k):
+        k[1].in_open = True
         self.heap_list.append(k)
         self.current_size = self.current_size + 1
         self.sift_up(self.current_size)
@@ -135,24 +136,17 @@ class min_heap:
 
     # input: state to be updated. output: void. function resets state in the array
     def reset_priority(self, k):
-        #starting = timeit.default_timer()
         # removes the 0 at the beginning of the list so that it can be heapified
         self.heap_list.pop(0)
         # linear search through heap for item to reset priority
-        if k in self.heap_list:
-            self.heap_list.remove(k)
-        # for i, x in enumerate(self.heap_list):
-        #     # equals
-        #     if x[0] == k.f and x[1].pos == k.pos:
-        #         k = (k.f, k)
-        #         self.heap_list.remove(x)
-        #         break
+        for i, x in enumerate(self.heap_list):
+            # equals
+            if x[0] == k.f and x[1].pos == k.pos:
+                k = (k.f, k)
+                self.heap_list.remove(x)
+                break
         # build the heap
         self.build_heap(self.heap_list)
-        # stop = timeit.default_timer()
-        # time = stop - starting
-        # print('Time Taken: {}s'.format(time))
-        # print(len(self.heap_list))
         # print(self.heap_list)
 
     # def remove_element(self, k):
