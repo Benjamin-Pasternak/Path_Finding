@@ -1,15 +1,21 @@
 import sys
 import timeit
 import tracemalloc
+from time import sleep
 import numpy as np
 from min_heap import *
-# from project.gen_maze import maze_generator
+from gen_maze import *
 
 
 # this file imports user selected grid
 # num is the user's number choice
 def create_arr(num):
-    temp = './arrs/backTrackerMazes/' + str(num) + '.txt'
+    if num < 10:
+        temp = './arrs/randGrid/0' + str(num) + '.txt'
+    elif num < 50:
+        temp = './arrs/randGrid/' + str(num) + '.txt'
+    else:
+        temp = './arrs/backTrackerMazes/' + str(num) + '.txt'
     grid = np.loadtxt(fname=temp, dtype=bool)
     return grid
 
@@ -179,7 +185,7 @@ class maze:
         retlist.reverse()
         return retlist
 
-    def astar(self):
+    def astar(self, log=False):
         counter = 0
         # initialize start and end states respectively
         start_state = state(self.start)
@@ -189,9 +195,10 @@ class maze:
 
         while start_state is not end_state:
             # input()
-            print(start_state.pos)
             counter = counter + 1
-            print(counter)
+            if log:
+                print(start_state.pos)
+                print(counter)
 
             start_state.g = 0
             start_state.children = []
@@ -247,6 +254,10 @@ class maze:
                 # print("Stepped in")
                 i = 1
                 while i < len(path) and not grid[path[i].pos[0]][path[i].pos[1]]:
+                    # input("ready, press enter")
+                    if not log:
+                        sleep(0.05)
+                        draw_grid(grid, path[i].pos)
                     if start_state.path is path[i]:
                         start_state.path = None
                     else:
@@ -265,8 +276,18 @@ tracemalloc.start()
 #         [False, False, False, False, False],
 #         [False, False, False, False, False]]
 
-# grid = maze_generator(10, 0.4)
-grid = create_arr(50)
+# grid = maze_generator(190, 0.4, True)
+# Cannot reach target...
+# Current memory usage is 3.342218MB; Peak was 3.361932MB
+# Time Taken: 11.730602829s
+
+grid = create_arr(int(input("grid#")))
+
+a = input("Log? (y/n)")
+if a is "y":
+    ab = True
+else:
+    ab = False
 
 # 0110000010
 # 0001000000
@@ -278,22 +299,22 @@ grid = create_arr(50)
 # 1000100001
 # 0000001100
 # 1100100000
-# grid = [[False, True, True, False, False, False, False, False, True, False],
-#         [False, False, False, True, False, False, False, False, False, False],
-#         [False, False, False, False, False, False, False, False, False, False],
-#         [False, False, False, False, False, True, False, True, True, False],
-#         [False, False, False, False, False, False, True, False, False, False],
-#         [False, False, False, False, False, False, False, True, False, False],
-#         [False, False, False, True, True, False, False, False, False, False],
-#         [True, False, False, False, True, False, False, False, False, True],
-#         [False, False, False, False, False, False, True, True, False, False],
-#         [True, True, False, False, True, False, False, False, False, False]]
+# grid = [[False, False, False, False, True, True, False, False, True, False],
+#         [True, False, False, True, False, True, False, True, False, False],
+#         [False, False, True, True, False, False, False, True, True, False],
+#         [True, True, False, True, False, True, False, False, True, False],
+#         [False, True, True, False, False, False, False, False, False, False],
+#         [False, True, True, False, False, False, False, True, True, False],
+#         [False, True, False, False, True, True, False, False, True, True],
+#         [True, False, True, True, True, True, True, True, False, False],
+#         [True, False, True, True, False, True, True, True, True, True],
+#         [False, False, False, False, True, True, True, True, False, False]]
 # Output
 # movement:[(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (6, 1), (7, 1), (8, 1), (8, 2), (9, 2), (9, 3),
 #           (8, 3), (8, 4), (8, 5), (9, 5), (9, 6), (9, 7), (9, 8), (9, 9)]
 test_maze = maze(grid)
 start = timeit.default_timer()
-test_maze.astar()
+test_maze.astar(ab)
 stop = timeit.default_timer()
 current, peak = tracemalloc.get_traced_memory()
 print(f"Current memory usage is {current / 10**6}MB; Peak was {peak / 10**6}MB")
