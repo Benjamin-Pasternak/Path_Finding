@@ -157,6 +157,13 @@ class maze:
             temp.manhattan_distance(self.end)
             self.state_list.append(temp)
         return temp
+    def get_state_backwards(self,pos):
+        temp = self.state_list.find(state(pos))
+        if temp is None:
+            temp = state(pos)
+            temp.manhattan_distance(self.start)
+            self.state_list.append(temp)
+        return temp
 
     # return empty list if target is not reached
     def make_path(self, s, g, final=False):
@@ -176,6 +183,105 @@ class maze:
             return []
         retlist.reverse()
         return retlist
+
+    def backwards_astar(self, log=False):
+        counter = 0
+        # initialize start and end states respectively
+        start_state = state(self.start)
+        end_state = state(self.end)
+        self.state_list.append(start_state)
+        self.state_list.append(end_state)
+
+        while start_state is not end_state:
+            # input()
+            counter = counter + 1
+            if log:
+                print(start_state.pos)
+                print(counter)
+
+            end_state.g = 0
+            end_state.children = []
+            end_state.parent = None
+            end_state.manhattan_distance(start_state.pos)
+            end_state.update_f()
+            end_state.search = counter
+
+
+            start_state.g = float('inf')
+            start_state.children = []
+            start_state.parent = None
+            start_state.update_f()
+            start_state.search = counter
+
+            open_list = min_heap()
+            closed_list = []
+
+            open_list.push((end_state.f * self.max_g - end_state.g, end_state))
+            # open_list.push((start_state.f, start_state))
+
+            # ComputePath
+            flag = True
+            # juicyflag = False
+            while start_state.g > open_list.peek():
+                # if juicyflag:
+                #     break
+                # print("open list:" + str(open_list))
+                curr_state = open_list.pop()[1]
+                # print("closed list:" + str(closed_list))
+                closed_list.append(curr_state.pos)
+                curr_state.find_children(self, closed_list, self.blocked_list, flag)
+                flag = False
+                for child_pos in curr_state.children:
+                    child = self.get_state_backwards(child_pos)
+                    if child.search < counter:
+                        child.g = float('inf')
+                        child.parent = None
+                        child.children = []
+                    if child.g > curr_state.g + 1:
+                        child.g = curr_state.g + 1
+                        child.update_f()
+                        child.parent = curr_state
+                        if child.in_open and child.search == counter:
+                            open_list.reset_priority(child)
+                        open_list.push((child.f * self.max_g - child.g, child))
+                        # open_list.push((child.f, child))
+                    child.search = counter
+                    # if curr_state.pos == start_state.pos:
+                    #     juicyflag = True
+
+            if open_list.current_size == 0:
+                print('Cannot reach target...')
+                print(self.final_path)
+                return
+            path = self.make_path(end_state, start_state)
+            path.reverse()
+            # print("path:" + str(path))
+            if len(path) != 0:
+                # print("Stepped in")
+                i = 1
+                while i < len(path) and not grid[path[i].pos[0]][path[i].pos[1]]:
+                    # input("ready, press enter")
+                    # if not log:
+                    #     sleep(0.05)
+                    #     draw_grid(grid, path[i].pos)
+                    if start_state.path is path[i]:
+                        start_state.path = None
+                    else:
+                        pup = path[i].path
+                        path[i].path = start_state
+                        self.final_path.append(path[i].pos)
+                    start_state = path[i]
+                    i += 1
+        print("movement:" + str(self.final_path))
+        # print("result:" + str(self.make_path(self.start, end_state, True)))
+
+############################################################################################################
+############################################################################################################
+############################################################################################################
+                                                #backwards A*
+############################################################################################################
+############################################################################################################
+############################################################################################################
 
     def astar(self, log=False):
         counter = 0
@@ -212,6 +318,7 @@ class maze:
             # open_list.push((start_state.f, start_state))
 
             # ComputePath
+            peek = open_list.peek()
             flag = True
             while end_state.g > open_list.peek():
                 # print("open list:" + str(open_list))
@@ -253,6 +360,7 @@ class maze:
                     if start_state.path is path[i]:
                         start_state.path = None
                     else:
+                        pup = path[i].path
                         path[i].path = start_state
                         self.final_path.append(path[i].pos)
                     start_state = path[i]
@@ -261,19 +369,46 @@ class maze:
         # print("result:" + str(self.make_path(self.start, end_state, True)))
 
 
-tracemalloc.start()
-# grid = [[False, False, False, False, False],
-#         [False, False, False, False, False],
-#         [False, False, False, False, False],
-#         [False, False, False, False, False],
-#         [False, False, False, False, False]]
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+tracemalloc.start()
+# grid = [[False, False, False, False],
+#         [False, False, False, True],
+#         [False, False, True, False],
+#         [False, False, False, False]]
+
+grid = [[False, False, False, False],
+        [False, False, False, False],
+        [False, False, False, False],
+        [False, False, False, False]]
 # grid = maze_generator(190, 0.4, True)
 # Cannot reach target...
 # Current memory usage is 3.342218MB; Peak was 3.361932MB
 # Time Taken: 11.730602829s
 
-grid = create_arr(int(input("grid#")))
+#grid = create_arr(int(input("grid#")))
 
 a = input("Log? (y/n)")
 if a is "y":
@@ -306,7 +441,7 @@ else:
 #           (8, 3), (8, 4), (8, 5), (9, 5), (9, 6), (9, 7), (9, 8), (9, 9)]
 test_maze = maze(grid)
 start = timeit.default_timer()
-test_maze.astar(ab)
+test_maze.backwards_astar(ab)
 stop = timeit.default_timer()
 current, peak = tracemalloc.get_traced_memory()
 print(f"Current memory usage is {current / 10**6}MB; Peak was {peak / 10**6}MB")
