@@ -74,16 +74,6 @@ class states_list:
         self.ptr = 0
 
     def append(self, state):
-        # index = 0
-        # for i in self.stateList:
-        #     if i.pos[0] + i.pos[1] < state.pos[0] + state.pos[1]:
-        #         index = index + 1
-        #         continue
-        #     if i.pos[0] + i.pos[1] == state.pos[0] + state.pos[1]:
-        #         if i.pos[0] < state.pos[0]:
-        #             index = index + 1
-        #             continue
-        #         break
         left = 0
         right = len(self.stateList) - 1
         curri = 0
@@ -92,11 +82,13 @@ class states_list:
             curr = self.stateList[curri]
             if curr.pos[0] + curr.pos[1] < state.pos[0] + state.pos[1]:
                 left = curri + 1
+                curri += 1
             if curr.pos[0] + curr.pos[1] > state.pos[0] + state.pos[1]:
                 right = curri - 1
             if curr.pos[0] + curr.pos[1] == state.pos[0] + state.pos[1]:
                 if curr.pos[0] <= state.pos[0]:
                     left = curri + 1
+                    curri += 1
                 if curr.pos[0] > state.pos[0]:
                     right = curri - 1
         self.stateList.insert(curri, state)
