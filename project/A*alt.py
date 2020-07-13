@@ -128,7 +128,7 @@ class states_list:
 
 class maze:
     # constructor
-    def __init__(self, grid, start=None, end=None):
+    def __init__(self, grid, backwards, start=None, end=None):
         self.size = (len(grid), len(grid[0]))
 
         # start
@@ -145,7 +145,10 @@ class maze:
 
         self.state_list = states_list()
         self.grid = grid
-        self.final_path = [self.start]
+        if backwards:
+            self.final_path = [self.end]
+        else:
+            self.final_path = [self.start]
         self.blocked_list = []
         self.max_g = len(grid) * 2
 
@@ -192,7 +195,7 @@ class maze:
         self.state_list.append(start_state)
         self.state_list.append(end_state)
 
-        while start_state is not end_state:
+        while end_state is not start_state:
             # input()
             counter = counter + 1
             if log:
@@ -254,7 +257,7 @@ class maze:
                 print(self.final_path)
                 return
             path = self.make_path(end_state, start_state)
-            path.reverse()
+            #path.reverse()
             # print("path:" + str(path))
             if len(path) != 0:
                 # print("Stepped in")
@@ -264,13 +267,13 @@ class maze:
                     # if not log:
                     #     sleep(0.05)
                     #     draw_grid(grid, path[i].pos)
-                    if start_state.path is path[i]:
-                        start_state.path = None
+                    if end_state.path is path[i]:
+                        end_state.path = None
                     else:
                         pup = path[i].path
-                        path[i].path = start_state
+                        path[i].path = end_state
                         self.final_path.append(path[i].pos)
-                    start_state = path[i]
+                    end_state = path[i]
                     i += 1
         print("movement:" + str(self.final_path))
         # print("result:" + str(self.make_path(self.start, end_state, True)))
@@ -354,9 +357,9 @@ class maze:
                 i = 1
                 while i < len(path) and not grid[path[i].pos[0]][path[i].pos[1]]:
                     # input("ready, press enter")
-                    if not log:
-                        sleep(0.05)
-                        draw_grid(grid, path[i].pos)
+                    # if not log:
+                    #     sleep(0.05)
+                    #     draw_grid(grid, path[i].pos)
                     if start_state.path is path[i]:
                         start_state.path = None
                     else:
@@ -389,20 +392,23 @@ class maze:
 
 
 
-
-
+#
+# s000
+# 0001
+# 0010
+# 0000
 
 
 tracemalloc.start()
-# grid = [[False, False, False, False],
-#         [False, False, False, True],
-#         [False, False, True, False],
-#         [False, False, False, False]]
-
 grid = [[False, False, False, False],
-        [False, False, False, False],
-        [False, False, False, False],
+        [False, False, False, True],
+        [False, False, True, False],
         [False, False, False, False]]
+
+# grid = [[False, False, False, False],
+#         [False, False, False, False],
+#         [False, False, False, False],
+#         [False, False, False, False]]
 # grid = maze_generator(190, 0.4, True)
 # Cannot reach target...
 # Current memory usage is 3.342218MB; Peak was 3.361932MB
@@ -439,7 +445,7 @@ else:
 # Output
 # movement:[(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (6, 1), (7, 1), (8, 1), (8, 2), (9, 2), (9, 3),
 #           (8, 3), (8, 4), (8, 5), (9, 5), (9, 6), (9, 7), (9, 8), (9, 9)]
-test_maze = maze(grid)
+test_maze = maze(grid, True)
 start = timeit.default_timer()
 test_maze.backwards_astar(ab)
 stop = timeit.default_timer()
