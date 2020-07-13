@@ -199,7 +199,7 @@ class maze:
             # input()
             counter = counter + 1
             if log:
-                print(start_state.pos)
+                print(end_state.pos)
                 print(counter)
 
             end_state.g = 0
@@ -257,7 +257,7 @@ class maze:
                 print(self.final_path)
                 return
             path = self.make_path(end_state, start_state)
-            #path.reverse()
+            # path.reverse()
             # print("path:" + str(path))
             if len(path) != 0:
                 # print("Stepped in")
@@ -267,14 +267,12 @@ class maze:
                     # if not log:
                     #     sleep(0.05)
                     #     draw_grid(grid, path[i].pos)
-                    if end_state.path is path[i]:
-                        end_state.path = None
-                    else:
-                        pup = path[i].path
-                        path[i].path = end_state
-                        self.final_path.append(path[i].pos)
+                    pup = path[i].path
+                    path[i].path = end_state
+                    self.final_path.append(path[i].pos)
                     end_state = path[i]
                     i += 1
+        self.final_path.reverse()
         print("movement:" + str(self.final_path))
         # print("result:" + str(self.make_path(self.start, end_state, True)))
 
@@ -360,12 +358,9 @@ class maze:
                     # if not log:
                     #     sleep(0.05)
                     #     draw_grid(grid, path[i].pos)
-                    if start_state.path is path[i]:
-                        start_state.path = None
-                    else:
-                        pup = path[i].path
-                        path[i].path = start_state
-                        self.final_path.append(path[i].pos)
+                    pup = path[i].path
+                    path[i].path = start_state
+                    self.final_path.append(path[i].pos)
                     start_state = path[i]
                     i += 1
         # print("movement:" + str(self.final_path))
@@ -467,15 +462,12 @@ class maze:
                     # if not log:
                     #     sleep(0.05)
                     #     draw_grid(grid, path[i].pos)
-                    if start_state.path is path[i]:
-                        start_state.path = None
-                    else:
-                        pup = path[i].path
-                        path[i].path = start_state
-                        self.final_path.append(path[i].pos)
+                    pup = path[i].path
+                    path[i].path = start_state
+                    self.final_path.append(path[i].pos)
                     start_state = path[i]
                     i += 1
-        #print("movement:" + str(self.final_path))
+        print("movement:" + str(self.final_path))
         # print("result:" + str(self.make_path(self.start, end_state, True)))
 
 
@@ -511,10 +503,6 @@ tracemalloc.start()
 #         [False, False, True, False],
 #         [False, False, False, False]]
 
-# grid = [[False, False, False, False],
-#         [False, False, False, False],
-#         [False, False, False, False],
-#         [False, False, False, False]]
 # grid = maze_generator(190, 0.4, True)
 # Cannot reach target...
 
@@ -523,40 +511,21 @@ tracemalloc.start()
 # Current memory usage is 3.342218MB; Peak was 3.361932MB
 # Time Taken: 11.730602829s
 
-grid = create_arr(int(input("grid#")))
+# grid = create_arr(int(input("grid#")))
+#
+# a = input("Log? (y/n)")
+# if a is "y":
+#     ab = True
+# else:
+#     ab = False
 
-a = input("Log? (y/n)")
-if a is "y":
-    ab = True
-else:
-    ab = False
-
-# 0110000010
-# 0001000000
-# 0000000000
-# 0000010110
-# 0000001000
-# 0000000100
-# 0001100000
-# 1000100001
-# 0000001100
-# 1100100000
-# grid = [[False, False, False, False, True, True, False, False, True, False],
-#         [True, False, False, True, False, True, False, True, False, False],
-#         [False, False, True, True, False, False, False, True, True, False],
-#         [True, True, False, True, False, True, False, False, True, False],
-#         [False, True, True, False, False, False, False, False, False, False],
-#         [False, True, True, False, False, False, False, True, True, False],
-#         [False, True, False, False, True, True, False, False, True, True],
-#         [True, False, True, True, True, True, True, True, False, False],
-#         [True, False, True, True, False, True, True, True, True, True],
-#         [False, False, False, False, True, True, True, True, False, False]]
-# Output
-# movement:[(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (6, 1), (7, 1), (8, 1), (8, 2), (9, 2), (9, 3),
-#           (8, 3), (8, 4), (8, 5), (9, 5), (9, 6), (9, 7), (9, 8), (9, 9)]
-test_maze = maze(grid, False)
+grid = [[False, False, True, False],
+        [False, True, True, False],
+        [False, False, False, False],
+        [False, False, True, False]]
+test_maze = maze(grid, True)
 start = timeit.default_timer()
-test_maze.astar(ab)
+test_maze.backwards_astar(True)
 stop = timeit.default_timer()
 current, peak = tracemalloc.get_traced_memory()
 print(f"Current memory usage is {current / 10**6}MB; Peak was {peak / 10**6}MB")
