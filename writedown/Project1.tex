@@ -1,0 +1,53 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+\title{CS 440 Summer \\ Project 1}
+\author{Benjamin Pasternak, Junxian Cai}
+\date{July 2020}
+
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{pgfplots}
+
+\begin{document}
+
+\maketitle
+
+\section*{Part 0}
+\paragraph*{}
+We load the grid world using create\_arr() in A.py, and visualize the grid world using draw\_grid() in gen\_maze.py
+
+\section*{Part 1}
+
+\subsection*{a)}
+\paragraph*{}
+\raggedright
+Without knowing which cells are blocked,and the $h$ values of each cell are calculated using manhattan distance method, $(g, h, f)$ values for all explored cells in search 1 are listed below:\\
+$$E2(0, 3, 3), D2(1, 4, 5), E1(1, 4, 5), E3(1, 2, 3)$$
+\paragraph*{}
+Such that E3 on the east will be expanded next due to its lowest $f$ value $3$, rather than D2 on the north will a greater $f$ value $5$.
+
+\subsection*{b)}
+\paragraph*{}
+Let $n$ be the number of unblocked cells, and let $m$ be the number of moves after one ComputePath() call, $s$ be the number of ComputePath() calls.
+
+\paragraph*{}
+Since the agent will always stop when hitting a block, the number of moves will always smaller or equal to the number of unblocked cells.
+$$m \le n$$
+
+\paragraph*{}
+Since the discovered blocks will be tracked during the entire A* search, the agent will not move on path obtained from previous ComputePath() calls, which means the agent will always move onto a new unblocked cells after each ComputePath() call. Hence, the number of ComputePath() calls will be smaller than the number of unblocked cells.
+$$s \le n$$
+
+$$m\cdot s \le n\cdot n$$
+Such that the total number of moves of the agent
+$$ms\le n^2$$
+Hence, The number of moves of the agent until it reaches the target or discovers it is impossible is bounded from above by $n^2$.
+
+\paragraph*{}
+Further more, the amount of time for executing ComputePath() is finite, because the number of cells in the open list is finite, and the time it takes to expand each of them is finite. The amount of time for moving the agent after each ComputePath() call is also finite. And we know the number of ComputePath() calls is also finite from the proof above. \\Hence, the agent can reaches the target or discovers it is impossible in finite time in finite gridworlds.
+
+\section*{Part 2}
+%larger dfs, smaller bfs
+
+\end{document}
