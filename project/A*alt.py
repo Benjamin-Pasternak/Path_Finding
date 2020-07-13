@@ -66,6 +66,18 @@ class state:
                     continue
                 self.children.append(temp_pos)
 
+    def find_children_addaptive(self, maze, closed, blocked, closed2, a_flag, flag=True):
+        neighbors = [(-1, 0), (1, 0), (0, 1), (0, -1)]
+        for action in neighbors:
+            temp_pos = (self.pos[0] + action[0], self.pos[1] + action[1])
+            if 0 <= temp_pos[0] < maze.size[0] and 0 <= temp_pos[1] < maze.size[1]:
+                if temp_pos in closed or temp_pos in blocked:
+                    continue
+                if flag and maze.grid[temp_pos[0]][temp_pos[1]] and a_flag:
+                    closed.append(temp_pos)
+                    blocked.append(temp_pos)
+                    continue
+                self.children.append(temp_pos)
 
 # Iterable class for list of states
 class states_list:
@@ -254,7 +266,7 @@ class maze:
 
             if open_list.current_size == 0:
                 print('Cannot reach target...')
-                print(self.final_path)
+                # print(self.final_path)
                 return
             path = self.make_path(end_state, start_state)
             #path.reverse()
@@ -275,7 +287,7 @@ class maze:
                         self.final_path.append(path[i].pos)
                     end_state = path[i]
                     i += 1
-        print("movement:" + str(self.final_path))
+        #print("movement:" + str(self.final_path))
         # print("result:" + str(self.make_path(self.start, end_state, True)))
 
 ############################################################################################################
@@ -348,7 +360,7 @@ class maze:
 
             if open_list.current_size == 0:
                 print('Cannot reach target...')
-                print(self.final_path)
+                # print(self.final_path)
                 return
             path = self.make_path(start_state, end_state)
             # print("path:" + str(path))
@@ -384,6 +396,7 @@ class maze:
     # a* uses new herusitic at beginning of next planning
     # no need to do anything special on first iteration i think
     def adaptive_astar(self, log=False):
+        flag_addapt = True
         first_iteration_flag = False
 
         counter = 0
@@ -395,10 +408,16 @@ class maze:
         # should be path.length-1 or 2
         f_actual = 0
         while start_state is not end_state:
-
             if first_iteration_flag:
-                start_state.h = f_actual - start_state.g
+                for x in closed_list2:
+                    x.h = f_actual - x.g
             first_iteration_flag = True
+            # if first_iteration_flag:
+            #     for
+            #     start_state.h = f_actual - start_state.g
+            # first_iteration_flag = True
+            #for x in closed_list:
+
 
             # input()
             counter = counter + 1
@@ -421,6 +440,7 @@ class maze:
 
             open_list = min_heap()
             closed_list = []
+            closed_list2 = []
 
             open_list.push((start_state.f * self.max_g - start_state.g, start_state))
             # open_list.push((start_state.f, start_state))
@@ -432,8 +452,10 @@ class maze:
                 # print("open list:" + str(open_list))
                 curr_state = open_list.pop()[1]
                 # print("closed list:" + str(closed_list))
+                closed_list2.append(curr_state)
                 closed_list.append(curr_state.pos)
-                curr_state.find_children(self, closed_list, self.blocked_list, flag)
+                curr_state.find_children_addaptive(self, closed_list, self.blocked_list, closed_list2, flag_addapt,
+                                                   flag)
                 flag = False
                 for child_pos in curr_state.children:
                     child = self.get_state(child_pos)
@@ -453,7 +475,7 @@ class maze:
 
             if open_list.current_size == 0:
                 print('Cannot reach target...')
-                print(self.final_path)
+                #print(self.final_path)
                 return
             path = self.make_path(start_state, end_state)
             # -1 because we arent including start state in distance calc
@@ -506,60 +528,82 @@ class maze:
 
 
 tracemalloc.start()
-# grid = [[False, False, False, False],
-#         [False, False, False, True],
-#         [False, False, True, False],
+# # grid = [[False, False, False, False],
+# #         [False, False, False, True],
+# #         [False, False, True, False],
+# #         [False, False, False, False]]
+#
+# # grid = [[False, False, False, False],
+# #         [False, False, False, False],
+# #         [False, False, False, False],
+# #         [False, False, False, False]]
+# # grid = maze_generator(190, 0.4, True)
+# # Cannot reach target...
+# grid = [[False, False, True, False],
+#         [False, True, True, False],
+#         [False, True, False, False],
 #         [False, False, False, False]]
-
-# grid = [[False, False, False, False],
-#         [False, False, False, False],
-#         [False, False, False, False],
-#         [False, False, False, False]]
-# grid = maze_generator(190, 0.4, True)
-# Cannot reach target...
-
-
-
-# Current memory usage is 3.342218MB; Peak was 3.361932MB
-# Time Taken: 11.730602829s
-
+#
+#
+#
+# # Current memory usage is 3.342218MB; Peak was 3.361932MB
+# # Time Taken: 11.730602829s
+#
 grid = create_arr(int(input("grid#")))
-
+#
 a = input("Log? (y/n)")
 if a is "y":
     ab = True
 else:
     ab = False
-
-# 0110000010
-# 0001000000
-# 0000000000
-# 0000010110
-# 0000001000
-# 0000000100
-# 0001100000
-# 1000100001
-# 0000001100
-# 1100100000
-# grid = [[False, False, False, False, True, True, False, False, True, False],
-#         [True, False, False, True, False, True, False, True, False, False],
-#         [False, False, True, True, False, False, False, True, True, False],
-#         [True, True, False, True, False, True, False, False, True, False],
-#         [False, True, True, False, False, False, False, False, False, False],
-#         [False, True, True, False, False, False, False, True, True, False],
-#         [False, True, False, False, True, True, False, False, True, True],
-#         [True, False, True, True, True, True, True, True, False, False],
-#         [True, False, True, True, False, True, True, True, True, True],
-#         [False, False, False, False, True, True, True, True, False, False]]
-# Output
-# movement:[(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (6, 1), (7, 1), (8, 1), (8, 2), (9, 2), (9, 3),
-#           (8, 3), (8, 4), (8, 5), (9, 5), (9, 6), (9, 7), (9, 8), (9, 9)]
+#
+# # 0110000010
+# # 0001000000
+# # 0000000000
+# # 0000010110
+# # 0000001000
+# # 0000000100
+# # 0001100000
+# # 1000100001
+# # 0000001100
+# # 1100100000
+# # grid = [[False, False, False, False, True, True, False, False, True, False],
+# #         [True, False, False, True, False, True, False, True, False, False],
+# #         [False, False, True, True, False, False, False, True, True, False],
+# #         [True, True, False, True, False, True, False, False, True, False],
+# #         [False, True, True, False, False, False, False, False, False, False],
+# #         [False, True, True, False, False, False, False, True, True, False],
+# #         [False, True, False, False, True, True, False, False, True, True],
+# #         [True, False, True, True, True, True, True, True, False, False],
+# #         [True, False, True, True, False, True, True, True, True, True],
+# #         [False, False, False, False, True, True, True, True, False, False]]
+# # Output
+# # movement:[(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (6, 1), (7, 1), (8, 1), (8, 2), (9, 2), (9, 3),
+# #           (8, 3), (8, 4), (8, 5), (9, 5), (9, 6), (9, 7), (9, 8), (9, 9)]
 test_maze = maze(grid, False)
 start = timeit.default_timer()
-test_maze.astar(ab)
+test_maze.adaptive_astar(ab)
 stop = timeit.default_timer()
 current, peak = tracemalloc.get_traced_memory()
 print(f"Current memory usage is {current / 10**6}MB; Peak was {peak / 10**6}MB")
 tracemalloc.stop()
 time = stop - start
 print('Time Taken: {}s'.format(time))
+sys.exit()
+i=0
+time_mem = []
+while i <=49 :
+    grid = create_arr(i)
+    test_maze = maze(grid, False)
+    start = timeit.default_timer()
+    tracemalloc.start()
+    test_maze.adaptive_astar(False)
+    stop = timeit.default_timer()
+    current, peak = tracemalloc.get_traced_memory()
+    tracemalloc.stop()
+    time = stop - start
+    time_mem.append((time, peak/10**6))
+    print(i)
+    i+=1
+
+print(time_mem)
