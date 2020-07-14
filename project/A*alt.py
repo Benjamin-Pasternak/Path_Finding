@@ -398,6 +398,7 @@ class maze:
     def adaptive_astar(self, log=False):
         flag_addapt = True
         first_iteration_flag = False
+        gcount = 0
 
         counter = 0
         # initialize start and end states respectively
@@ -454,6 +455,8 @@ class maze:
                 # print("closed list:" + str(closed_list))
                 closed_list2.append(curr_state)
                 closed_list.append(curr_state.pos)
+                gcount = gcount + 1
+                #print(gcount)
                 curr_state.find_children_addaptive(self, closed_list, self.blocked_list, closed_list2, flag_addapt,
                                                    flag)
                 flag = False
@@ -499,6 +502,7 @@ class maze:
                     i += 1
         #print("movement:" + str(self.final_path))
         # print("result:" + str(self.make_path(self.start, end_state, True)))
+        return gcount
 
 
 
@@ -589,7 +593,7 @@ print(f"Current memory usage is {current / 10**6}MB; Peak was {peak / 10**6}MB")
 tracemalloc.stop()
 time = stop - start
 print('Time Taken: {}s'.format(time))
-sys.exit()
+
 i=0
 time_mem = []
 while i <=49 :
@@ -597,12 +601,12 @@ while i <=49 :
     test_maze = maze(grid, False)
     start = timeit.default_timer()
     tracemalloc.start()
-    test_maze.adaptive_astar(False)
+    c = test_maze.adaptive_astar(False)
     stop = timeit.default_timer()
     current, peak = tracemalloc.get_traced_memory()
     tracemalloc.stop()
     time = stop - start
-    time_mem.append((time, peak/10**6))
+    time_mem.append((c ,time, peak/10**6))
     print(i)
     i+=1
 
